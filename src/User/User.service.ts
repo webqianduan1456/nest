@@ -7,7 +7,7 @@ export class UserService {
   findAll() {
     return {
       id: 1,
-      name: '杨某',
+      name: '物价',
     };
   }
 
