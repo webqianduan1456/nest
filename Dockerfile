@@ -9,8 +9,9 @@ RUN npm ci
 COPY . .
 # 构建应用
 RUN npm run build && \
-    find ./dist -type f && \        
-    [ -f dist/main.js ] || (echo "❌ 编译失败：检查 tsconfig.json 和项目结构" && exit 1)
+    find ./dist -type f && \
+    [ -f dist/src/main.js ] || (echo "❌ 编译失败：检查 tsconfig.json 和项目结构" && exit 1)
+
 # 第二阶段：生产环境
 FROM node:20-alpine
 WORKDIR /usr/src/app
@@ -20,4 +21,4 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 # 启动应用
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
