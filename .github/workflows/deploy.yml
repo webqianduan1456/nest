@@ -25,6 +25,12 @@ jobs:
         run: npm run build
 
       - name: Deploy to Aliyun
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ALIYUN_SSH_KEY }}
+          SSH_USER: ${{ secrets.ALIYUN_SSH_USER }}
+          SERVER_IP: ${{ secrets.ALIYUN_SERVER_IP }}
+          SSH_PORT: ${{ secrets.ALIYUN_SSH_PORT || '22' }}
+          DEPLOY_PATH: ${{ secrets.ALIYUN_DEPLOY_PATH || '/root/nest' }}
         run: |
           # Setup SSH
           mkdir -p ~/.ssh
@@ -32,27 +38,19 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           # Verify SSH key format
-          if ! ssh-keygen -l -f ~/.ssh/id_rsa &>/dev/null; then
+          if ! ssh-keygen -l -f ~/.ssh/id_rsa >/dev/null 2>&1; then
             echo "::error::Invalid SSH private key format"
             exit 1
           fi
 
-          # Add server to known_hosts
-          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+          # Configure SSH known hosts
+          ssh-keyscan -p $SSH_PORT $SERVER_IP >> ~/.ssh/known_hosts
 
-          # Test SSH connection
-          if ! ssh -o BatchMode=yes -p $SSH_PORT $SSH_USER@$SERVER_IP "echo SSH connection successful"; then
-            echo "::error::Failed to establish SSH connection"
-            exit 1
-          fi
-
-          # Deploy using rsync
-          rsync -avz --delete -e "ssh -p $SSH_PORT" \
+          # Deploy with rsync
+          rsync -avz -e "ssh -p $SSH_PORT" \
+            --exclude='.github/' \
             --exclude='.git/' \
             --exclude='node_modules/' \
-            --exclude='.env*' \
-            --exclude='.github/' \
-            --exclude='tests/' \
             ./ \
             $SSH_USER@$SERVER_IP:$DEPLOY_PATH
 
@@ -62,9 +60,3 @@ jobs:
             npm ci --production
             pm2 reload neat.js || pm2 start neat.js
           "
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.ALIYUN_SSH_KEY }}
-          SSH_USER: ${{ secrets.ALIYUN_SSH_USER }}
-          SERVER_IP: ${{ secrets.ALIYUN_SERVER_IP }}
-          SSH_PORT: ${{ secrets.ALIYUN_SSH_PORT || '22' }}
-          DEPLOY_PATH: ${{ secrets.ALIYUN_DEPLOY_PATH || '/root/nest' }}
