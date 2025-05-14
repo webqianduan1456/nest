@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8889:3000" # 宿主机8889 -> 容器3000
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: localhost
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: 1989315788
+      DB_DATABASE: users
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 1989315788
+      MYSQL_DATABASE: users
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck: # 健康检查（确保MySQL完全启动）
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "3306:3306" # 可选：暴露到宿主机（方便调试）
+
+volumes:
+  mysql_data:
