@@ -44,4 +44,5 @@ jobs:
 
       - name: Restart application
         run: |
-          ssh -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "pm2 reload app.js || pm2 start app.js"
+          ssh -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
+          "docker restart nest-app-1"
