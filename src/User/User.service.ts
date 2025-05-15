@@ -11,10 +11,10 @@ export class UserService {
   ) {}
 
   findAll() {
-    const User = this.userRepository.findOne({
-      where: { id: 1 },
-    });
-    return User;
+    // const User = this.userRepository.findOne({
+    //   where: { id: 1 },
+    // });
+    return 1111;
   }
 
   findOne() {

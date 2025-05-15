@@ -9,7 +9,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     // 全局配置环境变量文件引用
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [() => import('../config/default.json')],
+      load: [
+        () => import('../config/default.json'),
+        () => import('../config/development.json'),
+      ],
     }),
     // 数据库连接
     TypeOrmModule.forRootAsync({
