@@ -7,7 +7,7 @@ export class UserService {
   findAll() {
     return {
       id: 1,
-      user: '王俊栏是sb',
+      user: '时间是最好的老师',
     };
   }
 
