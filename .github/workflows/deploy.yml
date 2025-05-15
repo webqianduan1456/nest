@@ -1,24 +1,31 @@
+# 工作流名称：部署应用
 name: Deploy Application
 
+# 触发条件：当推送到 master 分支时
 on:
   push:
     branches: [master]
 
 jobs:
+  # 部署任务
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 检出代码
       - uses: actions/checkout@v4
 
+      # 安装 Node.js 环境
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # 安装项目依赖
       - name: Install dependencies
         run: npm ci --production
 
+      # 配置 SSH
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -26,6 +33,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SERVER_IP }} >> ~/.ssh/known_hosts
 
+      # 验证 SSH 连接
       - name: Verify SSH connection
         run: |
           if ! ssh -o BatchMode=yes -p ${{ secrets.ALIYUN_SERVER_POST  }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo SSH连接成功"; then
@@ -33,6 +41,7 @@ jobs:
             exit 1
           fi
 
+      # 使用 rsync 部署文件
       - name: Deploy with rsync
         run: |
           rsync -avz --delete -e "ssh -p ${{ secrets.ALIYUN_SERVER_POST }}" \
@@ -42,7 +51,11 @@ jobs:
             ./ \
             ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:${{ secrets.ALIYUN_DEPLOY_PATH || '/var/www/app' }}
 
+      # 重启应用容器
       - name: Restart application
         run: |
-          ssh -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
-          "docker restart nest-app-1"
+          if ! ssh -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
+          "docker ps -f name=nest-app-1 --format '{{.Names}}' | grep -q '^nest-app-1$' && docker restart nest-app-1"; then
+          echo "::error::容器重启失败或容器不存在"
+          exit 1
+          fi
