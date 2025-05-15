@@ -12,14 +12,14 @@ services:
       DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: 1989315788
-      DB_DATABASE: users
+      DB_DATABASE: user
     restart: unless-stopped
 
   db:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: 1989315788
-      MYSQL_DATABASE: users
+      MYSQL_DATABASE: user
       MYSQL_USER: root
       MYSQL_PASSWORD: 1989315788
     volumes:
