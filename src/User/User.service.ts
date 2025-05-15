@@ -12,7 +12,7 @@ export class UserService {
 
   findAll() {
     const User = this.userRepository.findOne({
-      where: { id:1 },
+      where: { id: 1 },
     });
     return User;
   }
