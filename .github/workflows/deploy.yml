@@ -30,9 +30,12 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SERVER_IP }} >> ~/.ssh/known_hosts
-
+          echo "SSH密钥生成成功:"
+          ls -la ~/.ssh/id_rsa*
+          echo "known_hosts内容:"
+          cat ~/.ssh/known_hosts
       # 验证 SSH 连接
       - name: Verify SSH connection
         run: |
