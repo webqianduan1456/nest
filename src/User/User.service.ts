@@ -10,9 +10,9 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  findAll(id: number = 1) {
+  findAll() {
     const User = this.userRepository.findOne({
-      where: { id },
+      where: { id:1 },
     });
     return User;
   }
