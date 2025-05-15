@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/Entity/User.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  constructor() {}
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
-  findAll() {
-    return {
-      id: 1,
-      user: '时间是最好的老师',
-    };
+  findAll(id: number = 1) {
+    const User = this.userRepository.findOne({
+      where: { id },
+    });
+    return User;
   }
 
   findOne() {
