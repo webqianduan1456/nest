@@ -14,7 +14,11 @@ export class UserService {
     // const User = this.userRepository.findOne({
     //   where: { id: 1 },
     // });
-    return 1111;
+    return {
+      id: 1,
+      name: 'yqq',
+      age: 18,
+    };
   }
 
   findOne() {
