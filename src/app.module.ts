@@ -25,6 +25,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         entities: [User],
         // 同步本地的schema与数据库 --> 初始化的时候去使用
         synchronize: true,
+        retryAttempts: 3,
+        retryDelay: 3000,
         logging: ['error'],
       }),
     }),
