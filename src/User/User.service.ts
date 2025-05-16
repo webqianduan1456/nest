@@ -11,9 +11,7 @@ export class UserService {
   ) {}
 
   findAll() {
-    return this.userRepository.findOne({
-      where: { id: 1 },
-    });
+    return this.userRepository.find();
   }
 
   findOne() {
