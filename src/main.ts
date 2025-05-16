@@ -4,6 +4,8 @@ import { rateLimit } from 'express-rate-limit';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // 启用 CORS（所有域名、所有方法都允许）
+  app.enableCors();
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
