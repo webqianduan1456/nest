@@ -11,14 +11,9 @@ export class UserService {
   ) {}
 
   findAll() {
-    // const User = this.userRepository.findOne({
-    //   where: { id: 1 },
-    // });
-    return {
-      id: 1,
-      name: 'y111q',
-      age: 18,
-    };
+    return this.userRepository.findOne({
+      where: { id: 1 },
+    });
   }
 
   findOne() {
