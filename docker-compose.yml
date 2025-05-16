@@ -10,7 +10,7 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 3306
-      DB_USER: root
+      DB_USER: yqq
       DB_PASSWORD: 1989315788
       DB_DATABASE: user
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 1989315788
       MYSQL_DATABASE: user
-      MYSQL_USER: root
+      MYSQL_USER: yqq
       MYSQL_PASSWORD: 1989315788
     volumes:
       - mysql_data:/var/lib/mysql
