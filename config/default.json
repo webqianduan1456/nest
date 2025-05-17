@@ -1,0 +1,13 @@
+{
+  "app": {
+    "port": 3000,
+    "name": "MyApp"
+  },
+  "database": {
+    "host": "47.122.47.101",
+    "port": "3306",
+    "username": "yqq",
+    "password": "1989315788",
+    "database": "user"
+  } 
+}

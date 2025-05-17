@@ -3,12 +3,13 @@ import { Controller, Get, Post, Delete, Put, Query } from '@nestjs/common';
 import { UserService } from './User.service';
 import OSS from 'ali-oss';
 import { Inject } from '@nestjs/common';
+import { OSS_PROVIDER } from 'src/core/oss';
 
 @Controller('user')
 export class UserController {
   constructor(
     private readonly UserService: UserService,
-    @Inject('OSS_CLIENT')
+    @Inject(OSS_PROVIDER)
     private readonly ossClient: OSS,
   ) {}
 

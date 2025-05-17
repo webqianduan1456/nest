@@ -19,6 +19,19 @@ jobs:
       - name: Install dependencies
         run: npm ci --production
 
+      - name: Create oss.json
+        run: |
+          cat > config/oss.json <<EOF
+          {
+            "OSS": {
+              "region": "${{ vars.OSS_REGION }}",
+              "accessKeyId": "${{ secrets.OSS_KEY_ID }}",
+              "accessKeySecret": "${{ secrets.OSS_KEY_SECRET }}",
+              "bucket": "${{ vars.OSS_BUCKET }}"
+            }
+          }
+          EOF
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
