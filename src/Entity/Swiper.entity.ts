@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('Swiper')
 export class Swiper {
   @PrimaryGeneratedColumn()
   id?: number;
