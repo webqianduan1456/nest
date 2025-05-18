@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
-import { UserModule } from './User/User.module';
-import { User } from './Entity/User.entity';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SwiperModule } from './Home/swiper/swiper.module';
+import { Swiper } from './Entity/Swiper.entity';
+import { OssProvider } from './core/oss';
 
+@Global()
 @Module({
   imports: [
     // 全局配置环境变量文件引用
@@ -22,7 +24,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        entities: [User],
+        entities: [Swiper],
         // 同步本地的schema与数据库 --> 初始化的时候去使用
         synchronize: true,
         retryAttempts: 3,
@@ -30,7 +32,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         logging: ['error'],
       }),
     }),
-    UserModule,
+    SwiperModule,
   ],
+  providers: [OssProvider],
+  exports: [OssProvider],
 })
 export class AppModule {}
