@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwiperModule } from './Home/swiper/swiper.module';
 import { Swiper } from './Entity/Swiper.entity';
-import { OssProvider } from './core/oss';
 
 @Global()
 @Module({
@@ -34,7 +33,7 @@ import { OssProvider } from './core/oss';
     }),
     SwiperModule,
   ],
-  providers: [OssProvider],
-  exports: [OssProvider],
+  providers: [],
+  exports: [],
 })
 export class AppModule {}
