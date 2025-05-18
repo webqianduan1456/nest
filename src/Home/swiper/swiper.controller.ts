@@ -7,6 +7,7 @@ export class SwiperController {
   // 返回首页轮播图图片
   @Get('img')
   GetSwiperImg() {
+    // 获取图片
     return this.swiperService.getSwiperImg();
   }
 }
