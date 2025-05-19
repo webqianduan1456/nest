@@ -5,7 +5,7 @@ export class Swiper {
   @PrimaryGeneratedColumn()
   id?: number;
   @Column()
-  img_url: number;
+  img_url: string;
   @Column()
   img_message: string;
 }

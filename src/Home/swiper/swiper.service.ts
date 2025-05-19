@@ -1,18 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Swiper } from 'src/Entity/Swiper.entity';
+import { OssService } from 'src/OSS/oss';
 import { Repository } from 'typeorm';
-
+export interface SwiperDto {
+  id: number;
+  img_url: string;
+  img_message: string;
+}
 @Injectable()
 export class SwiperService {
   constructor(
+    private readonly ossService: OssService,
     // 注入轮播图实体
     @InjectRepository(Swiper)
     // 轮播图实体
     private readonly userRepository: Repository<Swiper>,
   ) {}
   // 获取轮播图图片
-  getSwiperImg() {
-    return this.userRepository.find();
+  async getSwiperImgs(): Promise<SwiperDto[]> {
+    const [ossImages, swiperData] = await Promise.all([
+      this.ossService.listImagesInFolder('img/NestScenery/'),
+      this.userRepository.find(),
+    ]);
+    // 合并 OSS 路径和数据库数据，确保 img_message 字段不被覆盖
+    const mergedData: SwiperDto[] = swiperData.map((record, index) => ({
+      id: record.id || index + 1,
+      img_url: ossImages[index] || record.img_url,
+      img_message: record.img_message,
+    }));
+
+    return mergedData;
   }
 }

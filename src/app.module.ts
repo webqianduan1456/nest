@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwiperModule } from './Home/swiper/swiper.module';
 import { Swiper } from './Entity/Swiper.entity';
+import { OssService } from './OSS/oss';
 
 @Global()
 @Module({
@@ -10,7 +11,10 @@ import { Swiper } from './Entity/Swiper.entity';
     // 全局配置环境变量文件引用
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [() => import('../config/default.json')],
+      load: [
+        () => import('../config/default.json'),
+        () => import('../config/oss.json'),
+      ],
     }),
     // 数据库连接
     TypeOrmModule.forRootAsync({
@@ -25,7 +29,6 @@ import { Swiper } from './Entity/Swiper.entity';
         database: configService.get('database.database'),
         entities: [Swiper],
         // 同步本地的schema与数据库 --> 初始化的时候去使用
-        synchronize: true,
         retryAttempts: 3,
         retryDelay: 3000,
         logging: ['error'],
@@ -33,7 +36,7 @@ import { Swiper } from './Entity/Swiper.entity';
     }),
     SwiperModule,
   ],
-  providers: [],
-  exports: [],
+  providers: [OssService],
+  exports: [OssService],
 })
 export class AppModule {}
