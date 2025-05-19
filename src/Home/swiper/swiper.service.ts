@@ -25,6 +25,8 @@ export class HomeService {
       // 获取数据库数据
       this.userRepository.find(),
     ]);
+    console.log(ossImages);
+
     // 合并 OSS 路径和数据库数据
     const mergedData: HomeDto[] = swiperData.map((record, index) => ({
       id: record.id || index + 1,
