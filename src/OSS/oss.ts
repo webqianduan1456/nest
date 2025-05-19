@@ -48,6 +48,6 @@ export class OssService {
     // return `https://${ossConfig.bucket}.${ossConfig.region}.aliyuncs.com/${filename}`;
     // 如果是私有 Bucket，生成签名 URL（有效期示例 15 分钟）
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-    return this.client.signatureUrl(filename, { expires: 900 });
+    return this.client.signatureUrl(filename, { expires: 9000 });
   }
 }
