@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwiperModule } from './Home/swiper/swiper.module';
 import { Swiper } from './Entity/Swiper.entity';
 import { OssService } from './OSS/oss';
+import { Cities } from './Entity/Cities.entity';
+import { City } from './Entity/City.entity';
 
 @Global()
 @Module({
@@ -27,7 +29,7 @@ import { OssService } from './OSS/oss';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        entities: [Swiper],
+        entities: [Swiper, City, Cities],
         // 同步本地的schema与数据库 --> 初始化的时候去使用
         retryAttempts: 3,
         retryDelay: 3000,
