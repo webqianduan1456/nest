@@ -12,7 +12,7 @@ export class SwiperController {
     return await this.homeService.getSwiperImgs();
   }
   @Get('city')
-  getall(id: number) {
-    return this.homeService.getCity(id);
+  getall() {
+    return this.homeService.getCity();
   }
 }

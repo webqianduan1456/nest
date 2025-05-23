@@ -40,86 +40,95 @@ export class HomeService {
     return mergedData;
   }
   // 获取国内和国外地理位置
-  getCity(id: number = 1) {
+  getCity() {
     const city = this.cityRepository
       .createQueryBuilder('city')
       .leftJoinAndSelect('city.cityInfo', 'cities')
-      .where('city.id = :id', { id })
       .getMany();
 
     // 地理位置数据整理
     const ProcessCityDate = async () => {
-      const newCityGroup = [
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-        'F',
-        'G',
-        'H',
-        'I',
-        'J',
-        'K',
-        'L',
-        'M',
-        'N',
-        'O',
-        'P',
-        'Q',
-        'R',
-        'S',
-        'T',
-        'U',
-        'W',
-        'X',
-        'Y',
-        'Z',
-      ];
-      const n: (object | Array<object>)[] = [];
-      let n2: Array<object> = [];
+      let Domestic: object = {};
+      let Abroad: object = {};
+      //  获取国内和国外
+      for (let j = 0; j < 2; j++) {
+        const n: (object | Array<object>)[] = [];
+        const newCityGroup = [
+          'A',
+          'B',
+          'C',
+          'D',
+          'E',
+          'F',
+          'G',
+          'H',
+          'I',
+          'J',
+          'K',
+          'L',
+          'M',
+          'N',
+          'O',
+          'P',
+          'Q',
+          'R',
+          'S',
+          'T',
+          'U',
+          'W',
+          'X',
+          'Y',
+          'Z',
+        ];
+        let n2: Array<object> = [];
 
-      // 对数据库地理位置分类的数据处理
-      for (let i = 0; i <= newCityGroup.length - 1; i++) {
-        n2 = [];
-        // 每次开头push一个group(副数组)
-        n2.push({
-          group: newCityGroup[i],
-        });
-        // push每个对应的group城市(副数组)
-        await city.then((res) => {
-          return res[0].cityInfo.map((item) => {
-            if (item.group === newCityGroup[i]) {
-              return n2.push({
-                cityId: item.cityId,
-                cityName: item.cityName,
-                pinYin: item.pinYin,
-                gangAoTai: item.gangAoTai,
-                hot: item.hot,
-                longitude: item.longitude,
-                latitude: item.latitude,
-              });
-            }
+        // 对数据库地理位置分类的数据处理
+        for (let i = 0; i <= newCityGroup.length - 1; i++) {
+          n2 = [];
+          // 每次开头push一个group(副数组)
+          n2.push({
+            group: newCityGroup[i],
+          });
+          // push每个对应的group城市(副数组)
+          await city.then((res) => {
+            return res[j].cityInfo.map((item) => {
+              if (item.group === newCityGroup[i]) {
+                return n2.push({
+                  cityId: item.cityId,
+                  cityName: item.cityName,
+                  pinYin: item.pinYin,
+                  gangAoTai: item.gangAoTai,
+                  hot: item.hot,
+                  longitude: item.longitude,
+                  latitude: item.latitude,
+                });
+              }
+            });
+          });
+          // 最后push主数组
+          n.push(n2);
+        }
+        //  重构数据
+        const newCity1 = await city.then((item) => {
+          return item.map((ite) => {
+            return {
+              id: ite.id,
+              title: ite.title,
+              cityInfo: n,
+            };
           });
         });
-        // 最后push主数组
-        n.push(n2);
+        if (j === 0) {
+          Domestic = newCity1[j];
+        } else {
+          Abroad = newCity1[j];
+        }
       }
-      //  重构数据
-      const newCity = await city.then((item) => {
-        return item.map((ite) => {
-          return {
-            id: ite.id,
-            title: ite.title,
-            cityInfo: n,
-          };
-        });
-      });
-
-      const ls = newCity[0];
-      return ls;
+      return {
+        Domestic,
+        Abroad,
+      };
     };
-
     return ProcessCityDate();
   }
 }
