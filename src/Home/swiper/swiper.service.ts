@@ -110,7 +110,7 @@ export class HomeService {
         return item.map((ite) => {
           return {
             id: ite.id,
-            time: ite.title,
+            title: ite.title,
             cityInfo: n,
           };
         });
