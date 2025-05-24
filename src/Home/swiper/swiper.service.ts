@@ -39,6 +39,7 @@ export class HomeService {
 
     return mergedData;
   }
+
   // 获取国内和国外地理位置
   getCity() {
     const city = this.cityRepository
