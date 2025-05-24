@@ -11,6 +11,7 @@ export class SwiperController {
     // 获取图片
     return await this.homeService.getSwiperImgs();
   }
+  // 返回全国以及海外地理名称
   @Get('city')
   getall() {
     return this.homeService.getCity();
