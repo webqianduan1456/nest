@@ -7,7 +7,7 @@ export class City {
   id?: number;
   @Column()
   title: string;
-  // 添加一对多关系：一个 swiper 对应多个 user
+  // 添加一对多关系
   @OneToMany(() => Cities, (Cities) => Cities.cities)
   cityInfo: Cities[];
 }
