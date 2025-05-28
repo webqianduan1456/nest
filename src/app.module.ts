@@ -21,6 +21,7 @@ import { citiesArea } from './Entity/house/citiesArea.entity';
 import { HomeModule } from './Home/home/home.module';
 import { qqDataSource } from './db2.datasource';
 import { SelectedData } from './Entity/SelectedData.entity';
+import { houseimg } from './Entity/house/houseKeyimg/houseimg.entity';
 
 @Global()
 @Module({
@@ -62,6 +63,7 @@ import { SelectedData } from './Entity/SelectedData.entity';
           housMessage,
           citiesArea,
           SelectedData,
+          houseimg,
         ],
         // 同步本地的schema与数据库 --> 初始化的时候去使用
         retryAttempts: 3,

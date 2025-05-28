@@ -20,6 +20,7 @@ import { housMessage } from '../../Entity/house/housMessage.entity';
 import { citiesArea } from '../../Entity/house/citiesArea.entity';
 import { Resource } from '../../Entity/HouseResource/resource.entity';
 import { SelectedData } from '../../Entity/SelectedData.entity';
+import { houseimg } from '../../Entity/house/houseKeyimg/houseimg.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -40,6 +41,7 @@ import { SelectedData } from '../../Entity/SelectedData.entity';
       housMessage,
       citiesArea,
       SelectedData,
+      houseimg,
     ]),
     TypeOrmModule.forFeature([Resource], 'db2'),
   ],

@@ -29,6 +29,11 @@ export class HomeController {
   async getCityHouse(@Query('id') id: number) {
     return await this.homeService.getCityHouse(id);
   }
+  //获取指定城市的房屋商品图片
+  @Get('cityHouseImg')
+  async getCityHouseImg(@Query('id') id: number) {
+    return await this.homeService.getCityHouseImg(id);
+  }
   // 获取某个地方区域的信息
   @Get('citiesArea')
   async getCitiesArea(@Query('id') id: number) {

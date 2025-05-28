@@ -8,6 +8,7 @@ import { Resource } from '../../Entity/HouseResource/resource.entity';
 import { City } from 'src/Entity/City.entity';
 import { SelectedData } from '../../Entity/SelectedData.entity';
 import { houseAll } from '../../Entity/house/houseAll.entity';
+import { houseKeyimg } from '../../Entity/house/houseKeyimg/houseKeyimg.entity';
 
 @Injectable()
 export class HomeService {
@@ -29,6 +30,9 @@ export class HomeService {
     // 当前热门城市房源数据详细数据
     @InjectRepository(houseAll)
     private readonly houseAllRepository: Repository<houseAll>,
+    //获取指定城市的房屋商品图片
+    @InjectRepository(houseKeyimg)
+    private readonly houseKeyimgRepository: Repository<houseKeyimg>,
     // 海量房源数据实体
     @InjectRepository(Resource, 'db2')
     private readonly ResourceRepository: Repository<Resource>,
@@ -56,7 +60,7 @@ export class HomeService {
   }
 
   // 获取国内和国外地理位置
-  getCity() {
+  async getCity() {
     const city = this.cityRepository
       .createQueryBuilder('city')
       .leftJoinAndSelect('city.cityInfo', 'cities')
@@ -145,7 +149,7 @@ export class HomeService {
         Abroad,
       };
     };
-    return ProcessCityDate();
+    return await ProcessCityDate();
   }
   // 获取首页展示列表房屋商品信息数据
   async getCityHouseList(id: number, PageNumber: number = 1) {
@@ -186,7 +190,6 @@ export class HomeService {
         'housefacilities.housefacilitieses',
         'housefacilitieses',
       )
-      .leftJoinAndSelect('houseAll.houseKeyimg', 'houseKeyimg')
       .leftJoinAndSelect('houseAll.houserNotice', 'houserNotice')
       .leftJoinAndSelect('houseAll.houseText1', 'houseText1')
       .leftJoinAndSelect('houseText1.houseText', 'houseText')
@@ -214,23 +217,6 @@ export class HomeService {
           hotelLogo: ossImag[index],
         };
       });
-    }
-    // 合并数据1
-    const [ossImages, CitiesAllData] = await Promise.all([
-      // 获取oss图片列表
-      this.ossService.listImagesInFolder('img/NestImgs/'),
-      // 获取数据库数据
-      CitiesAll,
-    ]);
-    if (CitiesAllData[0]?.houseKeyimg) {
-      CitiesAllData[0].houseKeyimg = CitiesAllData[0].houseKeyimg.map(
-        (item, index) => {
-          return {
-            ...item,
-            url: ossImages[index] || item.url, // 使用OSS图片或原有URL
-          };
-        },
-      );
     }
     // 合并数据2
     const [ossImages1, CitiesAllData2] = await Promise.all([
@@ -289,8 +275,41 @@ export class HomeService {
       HousingResource: CitiesAllData34[0],
     };
   }
+  //获取指定城市的房屋商品图片
+  async getCityHouseImg(id: number) {
+    const houseKeyimgData = await this.houseKeyimgRepository
+      .createQueryBuilder('houseKeyimg')
+      .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
+      .where('houseKeyimg.cityId = :cityId', { cityId: id })
+      .getMany();
+
+    // 合并数据1
+    const [ossImages, CitiesAllData] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder('img/NestImgs/'),
+      // 获取数据库数据
+      houseKeyimgData,
+    ]);
+    let NewHouseKeyimgData = CitiesAllData;
+    if (CitiesAllData[0]) {
+      NewHouseKeyimgData = CitiesAllData.map((item) => {
+        return {
+          ...item,
+          houseimg: item.houseimg.map((ite) => {
+            return {
+              ...ite,
+              url: ossImages[ite.id],
+            };
+          }),
+        };
+      });
+    }
+    return {
+      HouseKeyImg: NewHouseKeyimgData,
+    };
+  }
   // 获取某个地方区域的信息数据
-  getCitiesArea(id: number) {
+  async getCitiesArea(id: number) {
     const CitiesArea = this.CitiesRepository.createQueryBuilder('Cities')
       .leftJoinAndSelect('Cities.citiesArea', 'citiesArea')
       .where('Cities.cityId = :cityId', { cityId: id })
@@ -311,7 +330,7 @@ export class HomeService {
       });
       return newCitiesArea;
     };
-    return ProcessCitiesArea();
+    return await ProcessCitiesArea();
   }
   // 海量房源数据图片
   async getResourceImg(img_url: string) {
