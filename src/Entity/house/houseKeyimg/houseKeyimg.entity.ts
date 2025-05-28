@@ -3,11 +3,9 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Cities } from '../../Cities.entity';
-import { houseImg } from './houseImg.entity';
+import { houseAll } from '../houseAll.entity';
 
 @Entity('houseKeyimg')
 export class houseKeyimg {
@@ -15,12 +13,10 @@ export class houseKeyimg {
   orderIndex?: number;
   @Column()
   title: string;
+  @Column()
+  url: string;
   // 添加多对一关系(Cities)
-  @ManyToOne(() => Cities, (Cities) => Cities.houseKeyimg)
+  @ManyToOne(() => houseAll, (houseAll) => houseAll.houseKeyimg)
   @JoinColumn({ name: 'cityId' })
-  houseKeyimg_a: Cities;
-
-  // 添加一对多关系(houseImg)
-  @OneToMany(() => houseImg, (houseImg) => houseImg.houseImg_a)
-  houseImg: houseImg[];
+  houseKeyimg_a: houseAll;
 }

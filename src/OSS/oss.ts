@@ -31,7 +31,14 @@ export class OssService {
       });
 
       // 过滤出图片文件（根据扩展名）
-      const imageExtensions = ['.webp', '.jpg', '.jpeg', '.png', '.gif'];
+      const imageExtensions = [
+        '.webp',
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.gif',
+        '.svg',
+      ];
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const images = result.objects
         .filter((obj: { name: string }) =>

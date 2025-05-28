@@ -8,6 +8,7 @@
     "port": "3306",
     "username": "root",
     "password": "1989315788",
-    "database": "home"
+    "database": "home",
+    "database2": "resourcehouse"
   }
 }

@@ -13,8 +13,6 @@ export class houseText {
   id?: number;
   @Column()
   text: string;
-  @Column()
-  textSpecial: string;
   // 添加多对一关系(houseText1)
   @ManyToOne(() => houseText1, (houseText1) => houseText1.houseText)
   @JoinColumn({ name: 'textid' })

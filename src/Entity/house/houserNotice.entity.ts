@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Cities } from '../Cities.entity';
+import { houseAll } from './houseAll.entity';
 
 @Entity('houserNotice')
 export class houserNotice {
@@ -16,7 +16,7 @@ export class houserNotice {
   @Column()
   introduction: string;
   // 添加多对一关系(Cities)
-  @ManyToOne(() => Cities, (Cities) => Cities.houserNotice)
+  @ManyToOne(() => houseAll, (houseAll) => houseAll.houserNotice)
   @JoinColumn({ name: 'cityId' })
-  houserNotice_a: Cities;
+  houserNotice_a: houseAll;
 }

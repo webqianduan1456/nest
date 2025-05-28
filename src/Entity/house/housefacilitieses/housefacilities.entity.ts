@@ -6,8 +6,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Cities } from '../../Cities.entity';
 import { housefacilitieses } from './housefacilitieses.entity';
+import { houseAll } from '../houseAll.entity';
 
 @Entity('housefacilities')
 export class housefacilities {
@@ -15,10 +15,12 @@ export class housefacilities {
   id?: number;
   @Column()
   name: string;
+  @Column()
+  url: string;
   // 添加一对多关系
-  @ManyToOne(() => Cities, (Cities) => Cities.housefacilities)
+  @ManyToOne(() => houseAll, (houseAll) => houseAll.housefacilities)
   @JoinColumn({ name: 'cityId' })
-  housefacilities_a: Cities;
+  housefacilities_a: houseAll;
 
   // 添加一对多关系(housefacilities)
   @OneToMany(

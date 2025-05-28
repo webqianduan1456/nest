@@ -10,7 +10,6 @@ import { houseAllone } from './Entity/house/houseAllone.entity';
 import { housefacilities } from './Entity/house/housefacilitieses/housefacilities.entity';
 import { housefacilitieses } from './Entity/house/housefacilitieses/housefacilitieses.entity';
 import { houseKeyimg } from './Entity/house/houseKeyimg/houseKeyimg.entity';
-import { houseImg } from './Entity/house/houseKeyimg/houseImg.entity';
 import { houserNotice } from './Entity/house/houserNotice.entity';
 import { houseText1 } from './Entity/house/houseText1/houseText1.entity';
 import { houseText } from './Entity/house/houseText1/houseText.entity';
@@ -20,6 +19,9 @@ import { houseUser } from './Entity/house/houseUser.entity';
 import { housMessage } from './Entity/house/housMessage.entity';
 import { citiesArea } from './Entity/house/citiesArea.entity';
 import { HomeModule } from './Home/home/home.module';
+import { qqDataSource } from './db2.datasource';
+import { SelectedData } from './Entity/SelectedData.entity';
+
 @Global()
 @Module({
   imports: [
@@ -51,7 +53,6 @@ import { HomeModule } from './Home/home/home.module';
           housefacilities,
           housefacilitieses,
           houseKeyimg,
-          houseImg,
           houserNotice,
           houseText1,
           houseText,
@@ -60,12 +61,25 @@ import { HomeModule } from './Home/home/home.module';
           houseUser,
           housMessage,
           citiesArea,
+          SelectedData,
         ],
         // 同步本地的schema与数据库 --> 初始化的时候去使用
         retryAttempts: 3,
         retryDelay: 3000,
         logging: ['error'],
       }),
+    }),
+
+    // 数据库连接Home
+    TypeOrmModule.forRootAsync({
+      name: 'db2',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!qqDataSource.isInitialized) {
+          await qqDataSource.initialize();
+        }
+        return qqDataSource;
+      },
     }),
 
     HomeModule,

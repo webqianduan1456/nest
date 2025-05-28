@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Swiper } from 'src/Entity/Swiper.entity';
 import { OssService } from 'src/OSS/oss';
 import { Repository } from 'typeorm';
-import { HomeSwiperImg } from '../type/HomeSwiper';
-import { City } from '../../Entity/City.entity';
 import { Cities } from '../../Entity/Cities.entity';
+import { Resource } from '../../Entity/HouseResource/resource.entity';
+import { City } from 'src/Entity/City.entity';
+import { SelectedData } from '../../Entity/SelectedData.entity';
+import { houseAll } from '../../Entity/house/houseAll.entity';
 
 @Injectable()
 export class HomeService {
@@ -21,9 +23,18 @@ export class HomeService {
     // 所有城市实体
     @InjectRepository(Cities)
     private readonly CitiesRepository: Repository<Cities>,
+    // 当前热门城市房源数据
+    @InjectRepository(SelectedData)
+    private readonly SelectedDataRepository: Repository<SelectedData>,
+    // 当前热门城市房源数据详细数据
+    @InjectRepository(houseAll)
+    private readonly houseAllRepository: Repository<houseAll>,
+    // 海量房源数据实体
+    @InjectRepository(Resource, 'db2')
+    private readonly ResourceRepository: Repository<Resource>,
   ) {}
   // 获取轮播图图片
-  async getSwiperImgs(img_url: string): Promise<HomeSwiperImg[]> {
+  async getSwiperImgs(img_url: string) {
     // 查询所有数据
     const SwiperImgAllMessage = this.userRepository
       .createQueryBuilder('swiper')
@@ -35,7 +46,7 @@ export class HomeService {
       SwiperImgAllMessage,
     ]);
     // 合并 OSS 路径和数据库数据
-    const mergedData: HomeSwiperImg[] = swiperData.map((record, index) => ({
+    const mergedData = swiperData.map((record, index) => ({
       id: record.id || index + 1,
       img_url: ossImages[index],
       img_message: record.img_message,
@@ -136,30 +147,147 @@ export class HomeService {
     };
     return ProcessCityDate();
   }
+  // 获取首页展示列表房屋商品信息数据
+  async getCityHouseList(id: number, PageNumber: number = 1) {
+    const SelectedDataList = this.SelectedDataRepository.createQueryBuilder(
+      'SelectedData',
+    )
+      .where('SelectedData.cityId = :cityId', { cityId: id })
+      .skip((PageNumber - 1) * 6) // 分页跳过的数量
+      .take(6)
+      .getMany();
+
+    // 合并数据1
+    const [ossImages, SelectedDataLists] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder('img/NestImgs/'),
+      // 获取数据库数据
+      SelectedDataList,
+    ]);
+    if (SelectedDataLists) {
+      const Selected = SelectedDataLists.map((item, index) => {
+        return {
+          ...item,
+          url: ossImages[item?.id - 1 || index],
+        };
+      });
+      return {
+        SelectedS: Selected,
+      };
+    }
+  }
   //获取指定城市的房屋商品信息数据
-  getCityHouse(id: number) {
-    const CitiesAll = this.CitiesRepository.createQueryBuilder('Cities')
-      .leftJoinAndSelect('Cities.houseAll', 'houseAll')
-      .leftJoinAndSelect('Cities.houseAllone', 'houseAllone')
-      .leftJoinAndSelect('Cities.housefacilities', 'housefacilities')
+  async getCityHouse(id: number) {
+    const CitiesAll = this.houseAllRepository
+      .createQueryBuilder('houseAll')
+      .leftJoinAndSelect('houseAll.housMessage', 'housMessage')
+      .leftJoinAndSelect('houseAll.housefacilities', 'housefacilities')
       .leftJoinAndSelect(
         'housefacilities.housefacilitieses',
         'housefacilitieses',
       )
-      .leftJoinAndSelect('Cities.houseKeyimg', 'houseKeyimg')
-      .leftJoinAndSelect('houseKeyimg.houseImg', 'houseImg')
-      .leftJoinAndSelect('Cities.houserNotice', 'houserNotice')
-      .leftJoinAndSelect('Cities.houseText1', 'houseText1')
+      .leftJoinAndSelect('houseAll.houseKeyimg', 'houseKeyimg')
+      .leftJoinAndSelect('houseAll.houserNotice', 'houserNotice')
+      .leftJoinAndSelect('houseAll.houseText1', 'houseText1')
       .leftJoinAndSelect('houseText1.houseText', 'houseText')
-      .leftJoinAndSelect('Cities.houseThree', 'houseThree')
-      .leftJoinAndSelect('Cities.houseTwo', 'houseTwo')
-      .leftJoinAndSelect('Cities.houseUser', 'houseUser')
-      .leftJoinAndSelect('Cities.housMessage', 'housMessage')
-
-      .where('Cities.cityId = :cityId', { cityId: id })
+      .leftJoinAndSelect('houseAll.houseThree', 'houseThree')
+      .leftJoinAndSelect('houseAll.houseTwo', 'houseTwo')
+      .leftJoinAndSelect('houseAll.houseUser', 'houseUser')
+      .leftJoinAndSelect('houseAll.houseAllone', 'houseAllone')
+      .where('houseAll.cityId = :cityId', { cityId: id })
+      .orderBy('houseAll.id_Shop', 'ASC')
+      .orderBy('houseKeyimg.orderIndex', 'ASC')
+      .orderBy('houseThree.id', 'ASC')
       .getMany();
+    const [ossImage, ossImag, CitiesAllDat] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder('img/VipHouse/'),
+      this.ossService.listImagesInFolder('img/houseLoge/'),
+      // 获取数据库数据
+      CitiesAll,
+    ]);
+    if (CitiesAllDat[0]) {
+      CitiesAll[0] = CitiesAllDat.map((item, index) => {
+        return {
+          ...item,
+          topScroll: ossImage[index],
+          hotelLogo: ossImag[index],
+        };
+      });
+    }
+    // 合并数据1
+    const [ossImages, CitiesAllData] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder('img/NestImgs/'),
+      // 获取数据库数据
+      CitiesAll,
+    ]);
+    if (CitiesAllData[0]?.houseKeyimg) {
+      CitiesAllData[0].houseKeyimg = CitiesAllData[0].houseKeyimg.map(
+        (item, index) => {
+          return {
+            ...item,
+            url: ossImages[index] || item.url, // 使用OSS图片或原有URL
+          };
+        },
+      );
+    }
+    // 合并数据2
+    const [ossImages1, CitiesAllData2] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder('img/useravater/'),
+      // 获取数据库数据
+      CitiesAll,
+    ]);
+    if (CitiesAllData2[0]?.houseUser) {
+      CitiesAllData2[0].houseUser = CitiesAllData2[0].houseUser.map((item) => {
+        return {
+          ...item,
+          userAvatars: ossImages1[ossImages1.length - 1],
+        };
+      });
+    }
 
-    return CitiesAll;
+    // 合并数据3
+    const [ossImages2, CitiesAllData3] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder('img/commenSvg/'),
+      // 获取数据库数据
+      CitiesAll,
+    ]);
+    if (CitiesAllData3[0]?.housefacilities) {
+      CitiesAllData3[0].housefacilities = CitiesAllData3[0].housefacilities.map(
+        (item, index) => {
+          return {
+            ...item,
+            url: ossImages2[index],
+          };
+        },
+      );
+    }
+
+    // 合并数据4
+    const [ossImages3, ossImages5, initialData] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder('img/VipHouse/'),
+      this.ossService.listImagesInFolder('img/houseLoge/'),
+      // 获取数据库数据
+      CitiesAll,
+    ]);
+    let CitiesAllData34 = initialData;
+    if (CitiesAllData34) {
+      CitiesAllData34 = CitiesAllData34.map((item, index) => {
+        return {
+          ...item,
+          topScroll: ossImages3[index],
+          hotelLogo: ossImages5[index],
+        };
+      });
+    }
+
+    return {
+      HousingResource: CitiesAllData34[0],
+    };
   }
   // 获取某个地方区域的信息数据
   getCitiesArea(id: number) {
@@ -171,18 +299,40 @@ export class HomeService {
     // 处理某个地方区域数据
     const ProcessCitiesArea = () => {
       const newCitiesArea = CitiesArea.then((item) => {
-        return {
-          cityId: item[0].cityId,
-          cityName: item[0].cityName,
-          citiesArea: item[0].citiesArea,
-        };
+        try {
+          return {
+            cityId: item[0].cityId,
+            cityName: item[0].cityName,
+            citiesArea: item[0].citiesArea,
+          };
+        } catch {
+          throw new NotFoundException(`数据不存在`);
+        }
       });
       return newCitiesArea;
     };
     return ProcessCitiesArea();
   }
   // 海量房源数据图片
-  getResourceImg() {
-    return 1;
+  async getResourceImg(img_url: string) {
+    // 查询所有数据
+    const SwiperImgAllMessage =
+      this.ResourceRepository.createQueryBuilder('resource').getMany();
+    const [ossImages, swiperData] = await Promise.all([
+      // 获取oss图片列表
+      this.ossService.listImagesInFolder(img_url),
+      // 获取数据库数据
+      SwiperImgAllMessage,
+    ]);
+    // 合并 OSS 路径和数据库数据
+    const mergedData = swiperData.map((record, index) => ({
+      id: record.id || index + 1,
+      title: record.title,
+      img: ossImages[index],
+    }));
+
+    return {
+      mergedData,
+    };
   }
 }

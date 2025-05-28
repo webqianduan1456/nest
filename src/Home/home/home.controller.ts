@@ -1,34 +1,42 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { HomeService } from './home.service';
-import { HomeSwiperImg } from '../type/HomeSwiper';
 
 @Controller('home')
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
   // 返回首页轮播图图片
   @Get('swiperimg')
-  async GetSwiperImg(): Promise<HomeSwiperImg[]> {
+  async GetSwiperImg() {
     // 获取图片
     return await this.homeService.getSwiperImgs('img/NestScenery/');
   }
   // 返回全国以及海外地理名称
   @Get('city')
-  getall() {
-    return this.homeService.getCity();
+  async getall() {
+    return await this.homeService.getCity();
+  }
+
+  @Get('cityHouseList')
+  // 获取首页展示列表房屋商品信息数据
+  async getCityHouseList(
+    @Query('id') id: number,
+    @Query('PageNumber') PageNumber: number,
+  ) {
+    return await this.homeService.getCityHouseList(id, PageNumber);
   }
   //获取指定城市的房屋商品信息
   @Get('cityHouse')
-  getCityHouse() {
-    return this.homeService.getCityHouse(45);
+  async getCityHouse(@Query('id') id: number) {
+    return await this.homeService.getCityHouse(id);
   }
   // 获取某个地方区域的信息
   @Get('citiesArea')
-  getCitiesArea(id: number = 45) {
-    return this.homeService.getCitiesArea(id);
+  async getCitiesArea(@Query('id') id: number) {
+    return await this.homeService.getCitiesArea(id);
   }
   // 海量房源数据
-  @Get('resourceImg')
-  getResourceImg() {
-    return this.homeService.getResourceImg();
+  @Get('resource')
+  async getResourceImg() {
+    return await this.homeService.getResourceImg('img/houseResources/');
   }
 }
