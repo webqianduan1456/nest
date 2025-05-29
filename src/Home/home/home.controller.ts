@@ -15,9 +15,8 @@ export class HomeController {
   async getall() {
     return await this.homeService.getCity();
   }
-
-  @Get('cityHouseList')
   // 获取首页展示列表房屋商品信息数据
+  @Get('cityHouseList')
   async getCityHouseList(
     @Query('id') id: number,
     @Query('PageNumber') PageNumber: number,
