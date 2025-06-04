@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { houseAll } from '../houseAll.entity';
 import { houseimg } from './houseimg.entity';
+import { SelectedDataCopy } from '../../../Entity/SelectedDataCopy';
+import { SelectedData } from '../../../Entity/SelectedData.entity';
 
 @Entity('houseKeyimg')
 export class houseKeyimg {
@@ -17,10 +19,26 @@ export class houseKeyimg {
   title: string;
   @Column()
   orderSum: number;
+  @Column()
+  cityId: number;
+
   // 添加多对一关系(Cities)
   @ManyToOne(() => houseAll, (houseAll) => houseAll.houseKeyimg)
   @JoinColumn({ name: 'cityId' })
   houseKeyimg_a: houseAll;
+
+  // 添加多对一关系(SelectedDataCopy)
+  @ManyToOne(
+    () => SelectedDataCopy,
+    (SelectedDataCopy) => SelectedDataCopy.houseKeyimg,
+  )
+  @JoinColumn({ name: 'cityId' })
+  houseKeyimg_as: SelectedDataCopy;
+
+  // 添加多对一关系(SelectedData)
+  @ManyToOne(() => SelectedData, (SelectedData) => SelectedData.houseKeyimg)
+  @JoinColumn({ name: 'cityId' })
+  houseKeyimg_S: SelectedData;
 
   // 添加一对多关系(houseimg)
   @OneToMany(() => houseimg, (houseimg) => houseimg.houseKeyimges_a)

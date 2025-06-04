@@ -1,17 +1,8 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Cities } from './Cities.entity';
-import { houseAll } from './house/houseAll.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { houseKeyimg } from './house/houseKeyimg/houseKeyimg.entity';
 
-@Entity('SelectedData')
-export class SelectedData {
+@Entity('SelectedDataCopy')
+export class SelectedDataCopy {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
@@ -48,16 +39,7 @@ export class SelectedData {
   Comment: number;
   @Column()
   flay: number;
-  // 添加多对一关系(Cities)
-  @ManyToOne(() => Cities, (Cities) => Cities.SelectedData)
-  @JoinColumn({ name: 'cityId' })
-  SelectedData_a: Cities;
-
-  // 添加一对多关系(houseAll)
-  @OneToMany(() => houseAll, (houseAll) => houseAll.houseAll_a)
-  houseAll: houseAll[];
-
-  // 添加一对多关系(houseKeyimg)
-  @OneToMany(() => houseKeyimg, (houseKeyimg) => houseKeyimg.houseKeyimg_S)
+  // 添加一对多关系(houseimg)
+  @OneToMany(() => houseKeyimg, (houseKeyimg) => houseKeyimg.houseKeyimg_as)
   houseKeyimg?: houseKeyimg[];
 }
