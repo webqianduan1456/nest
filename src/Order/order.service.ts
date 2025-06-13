@@ -276,7 +276,6 @@ export class OrderService {
   }
   // 更新订单
   async updateOrder(Body: { houseId: number }) {
-    console.log('订单已更新');
     const orders = await this.OrderRepository.createQueryBuilder('Order')
       .where('Order.houseId = :houseId', { houseId: Body.houseId })
       .andWhere('Order.Overall = :Overall', { Overall: 0 })

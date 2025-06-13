@@ -13,9 +13,8 @@ export class RedisService implements OnModuleDestroy {
       db: 0,
       connectTimeout: 10000,
       // 显式覆盖所有可能的默认值
-      maxRetriesPerRequest: 5,
+      maxRetriesPerRequest: 10,
       retryStrategy: (times) => {
-        console.log(`[重试日志] 第 ${times} 次重连`);
         return times >= 2 ? null : 500;
       },
       enableOfflineQueue: false, // 禁用离线队列（避免堆积请求）

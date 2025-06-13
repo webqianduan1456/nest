@@ -15,7 +15,7 @@ import { OrderProcessor } from '../Bull/order.processor';
         host: '47.122.47.101',
         port: 6379,
         password: '1989315788',
-        maxRetriesPerRequest: 5,
+        maxRetriesPerRequest: 10,
         db: 0,
       },
     }),
