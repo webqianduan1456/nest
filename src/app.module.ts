@@ -23,6 +23,8 @@ import { qqDataSource } from './db2.datasource';
 import { SelectedData } from './Entity/SelectedData.entity';
 import { houseimg } from './Entity/house/houseKeyimg/houseimg.entity';
 import { SelectedDataCopy } from './Entity/SelectedDataCopy';
+import { OrderDataSource } from './order.datasource';
+import { OrderModule } from './Order/order.module';
 
 @Global()
 @Module({
@@ -86,7 +88,19 @@ import { SelectedDataCopy } from './Entity/SelectedDataCopy';
       },
     }),
 
+    // 数据库连接Order
+    TypeOrmModule.forRootAsync({
+      name: 'order',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!OrderDataSource.isInitialized) {
+          await OrderDataSource.initialize();
+        }
+        return OrderDataSource;
+      },
+    }),
     HomeModule,
+    OrderModule,
   ],
   providers: [OssService],
   exports: [OssService],

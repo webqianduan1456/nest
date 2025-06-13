@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm';
 import { Resource } from './Entity/HouseResource/resource.entity';
 
 export const qqDataSource = new DataSource({
-  name: 'qq',
   type: 'mysql',
   host: '47.122.47.101',
   port: 3306,
