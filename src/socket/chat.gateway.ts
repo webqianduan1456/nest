@@ -19,7 +19,7 @@ interface tokenType {
 @WebSocketGateway(3001, {
   namespace: '/chats', // 明确使用命名空间
   cors: {
-    origin: 'https://project.yqqlike.xin',
+    origin: 'http://project.yqqlike.xin',
   },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
