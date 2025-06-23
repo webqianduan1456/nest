@@ -19,7 +19,7 @@ interface tokenType {
 @WebSocketGateway(3001, {
   namespace: '/chats', // 明确使用命名空间
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'http://47.122.47.101:8889',
   },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
