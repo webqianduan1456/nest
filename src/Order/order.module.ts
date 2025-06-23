@@ -9,16 +9,6 @@ import { OrderProcessor } from '../Bull/order.processor';
 @Module({
   imports: [
     TypeOrmModule.forFeature([AllOrder], 'order'),
-    // BUll连接redis
-    BullModule.forRoot({
-      redis: {
-        host: '47.122.47.101',
-        port: 6379,
-        password: '1989315788',
-        maxRetriesPerRequest: 10,
-        db: 0,
-      },
-    }),
     BullModule.registerQueue({ name: 'order' }),
   ],
   controllers: [OrderController],

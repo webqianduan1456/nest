@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Swiper } from 'src/Entity/Swiper.entity';
 import { OssService } from 'src/OSS/oss';
@@ -11,6 +16,7 @@ import { houseAll } from '../../Entity/house/houseAll.entity';
 import { houseKeyimg } from '../../Entity/house/houseKeyimg/houseKeyimg.entity';
 import { SelectedDataCopy } from '../../Entity/SelectedDataCopy';
 import { itemDates } from '../type/itemDate';
+import { SelectedDataHistory } from '../../Entity/SelectedDataHistory';
 
 @Injectable()
 export class HomeService {
@@ -32,6 +38,9 @@ export class HomeService {
     // 返回副本首页展示列表房屋商品信息数据
     @InjectRepository(SelectedDataCopy)
     private readonly SelectedDataCopyRepository: Repository<SelectedDataCopy>,
+    // 返回热门详情历史记录
+    @InjectRepository(SelectedDataHistory)
+    private readonly SelectedDataHistoryRepository: Repository<SelectedDataHistory>,
     // 当前热门城市房源数据详细数据
     @InjectRepository(houseAll)
     private readonly houseAllRepository: Repository<houseAll>,
@@ -161,14 +170,9 @@ export class HomeService {
     return await ProcessCityDate();
   }
   // -------获取首页展示列表房屋商品信息数据------
-  async getCityHouseList(
-    id: number,
-    PageNumber: number,
-    flay: number | null,
-    ids: number | null,
-  ) {
+  async getCityHouseList(id: number, PageNumber: number) {
     // --------------正常发送并获取List数据--------------
-    if (id && PageNumber && !flay && !ids) {
+    if (id && PageNumber) {
       const SelectedDataList =
         await this.SelectedDataRepository.createQueryBuilder('SelectedData')
           .where('SelectedData.cityId = :cityId', { cityId: id })
@@ -197,64 +201,23 @@ export class HomeService {
       };
       return await SelectedDataListMerge();
     }
-    // ---------------------修改数据flay------------------
-    if (flay && ids && flay == 1) {
-      await this.SelectedDataRepository.createQueryBuilder('Revise')
-        .update(SelectedData)
-        .set({ flay: flay })
-        .where('id = :id', { id: ids })
-        .execute();
-    }
-    // ----------------返回用户的历史记录-----------------------
-    if (flay) {
-      const SelectedDataList =
-        await this.SelectedDataRepository.createQueryBuilder('SelectedData')
-          .leftJoinAndSelect('SelectedData.houseKeyimg', 'houseKeyimg')
-          .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
-          .where('SelectedData.flay = :flay', { flay: 1 })
-          .getMany();
-      // 合并数据houseKeyimgData
-      const houseKeyimgDataMeger = async () => {
-        const [ossImages, CitiesAllData] = await Promise.all([
-          // 获取oss图片列表
-          this.ossService.listImagesInFolder('img/NestImgs/'),
-          // 获取数据库数据
-          SelectedDataList,
-        ]);
-        let NewHouseKeyimgData = CitiesAllData;
-
-        NewHouseKeyimgData = CitiesAllData.map((item) => {
-          return {
-            ...item,
-            houseKeyimg: item.houseKeyimg?.map((ite) => ({
-              ...ite,
-              houseimg: ite.houseimg.map((it) => ({
-                ...it,
-                url: ossImages[it.id],
-              })),
-            })),
-          };
-        });
-
-        return NewHouseKeyimgData;
-      };
-      return await houseKeyimgDataMeger();
-    }
   }
-  // ------返回副本首页展示列表房屋商品信息数据------
-  async getCityHouseListCopy(id: number | null) {
-    // 有id就返回热门详情副本数据没有就返回全部的副本数据
+  // ------返回收藏数据------
+  async getCityHouseListCopy(id: number | null, userid: number) {
+    // 有id就返回热门详情收藏数据没有就返回全部的收藏数据
     if (id) {
       const result = await this.SelectedDataCopyRepository.createQueryBuilder(
         'copy',
       )
-        .where('copy.id = :id', { id: id })
+        .where('copy.housid = :housid', { housid: id })
+        .andWhere('copy.userid = :userid', { userid })
         .leftJoinAndSelect('copy.houseKeyimg', 'houseKeyimg')
         .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
         .getOne();
       if (!result || result == undefined) {
         throw new NotFoundException('没有数据!');
       }
+
       // 合并数据houseKeyimgData
       const houseKeyimgDataMeger = async () => {
         const [ossImages, CitiesAllData] = await Promise.all([
@@ -263,6 +226,7 @@ export class HomeService {
           // 获取数据库数据
           result,
         ]);
+
         const NewHouseKeyimgData = {
           ...CitiesAllData,
           houseKeyimg: CitiesAllData.houseKeyimg?.map((item) => ({
@@ -276,64 +240,115 @@ export class HomeService {
 
         return NewHouseKeyimgData;
       };
+
       return await houseKeyimgDataMeger();
     } else {
       const result = await this.SelectedDataCopyRepository.createQueryBuilder(
         'copy',
       )
+        .andWhere('copy.userid = :userid', { userid })
         .leftJoinAndSelect('copy.houseKeyimg', 'houseKeyimg')
         .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
         .getMany();
-      // 合并数据houseKeyimgData
-      const houseKeyimgDataMeger = async () => {
-        const [ossImages, CitiesAllData] = await Promise.all([
-          // 获取oss图片列表
-          this.ossService.listImagesInFolder('img/NestImgs/'),
-          // 获取数据库数据
-          result,
-        ]);
-        let NewHouseKeyimgData = CitiesAllData;
-
-        NewHouseKeyimgData = CitiesAllData.map((item) => {
-          return {
-            ...item,
-            houseKeyimg: item.houseKeyimg?.map((ite) => ({
-              ...ite,
-              houseimg: ite.houseimg.map((it) => ({
-                ...it,
-                url: ossImages[it.id],
-              })),
-            })),
-          };
-        });
-
-        return NewHouseKeyimgData;
-      };
-      return await houseKeyimgDataMeger();
+      // 处理数据合并数据
+      const newRes = result.map(async (item) => {
+        return {
+          ...item,
+          houseKeyimg: await this.getCityHouseImg(item.housid),
+        };
+      });
+      // 处理数据里面的Promise
+      const disposeNewData = await Promise.all(newRes);
+      const NewResult = disposeNewData.map((item) => {
+        return {
+          ...item,
+          houseKeyimg: [...item.houseKeyimg.HouseKeyImg],
+        };
+      });
+      return NewResult;
     }
   }
-  // -------添加热门详情副本数据-------
+  // -------添加收藏-------
   async CityHouseListCopyAdd(itemDates: itemDates) {
     // 精确查询该ID是否存在
-    const existingRecord = await this.SelectedDataCopyRepository.findOne({
-      where: { id: itemDates.id },
-    });
-    if (existingRecord) {
-      return '已经存在';
-    } else {
+    const existingRecord =
+      await this.SelectedDataCopyRepository.createQueryBuilder('collect')
+        .where('collect.userid = :userid', { userid: itemDates.userid })
+        .andWhere('collect.houseId = :houseId', { houseId: itemDates.houseId })
+        .getOne();
+    if (existingRecord === null && itemDates.userid && itemDates.userid !== 0) {
       await this.SelectedDataCopyRepository.insert(itemDates);
       return '已经存储';
+    } else {
+      return '已经存在或未登录';
     }
   }
-  // -----删除副本首页展示列表房屋商品信息数据------
-  async cityHouseListCopyDelete(id: number) {
+
+  // -------获取历史记录-------
+  async getSelectedDataHistory(userid: number) {
+    const getHistory =
+      await this.SelectedDataHistoryRepository.createQueryBuilder('getHistory')
+        .andWhere('getHistory.userid = :userid', { userid })
+        .leftJoinAndSelect('getHistory.houseKeyimg', 'houseKeyimg')
+        .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
+        .getMany();
+    //  处理合并数据
+    const getNewMerge = getHistory.map(async (item) => {
+      return {
+        ...item,
+        houseKeyimg: await this.getCityHouseImg(item.housid),
+      };
+    });
+    // 处理数据里面的promise
+    const disposePromise = Promise.all(getNewMerge);
+    // 处理深层的HouseKeyImg合并数据
+    const newHistory = (await disposePromise).map((item) => {
+      return {
+        ...item,
+        houseKeyimg: [...item.houseKeyimg.HouseKeyImg],
+      };
+    });
+    return newHistory;
+  }
+  // -------创建历史记录-------
+  async AddSelectedDataHistory(itemDates: itemDates) {
+    const AddHistory =
+      await this.SelectedDataHistoryRepository.createQueryBuilder('AddHistory')
+        .where('AddHistory.housid = :housid', { housid: itemDates.housid })
+        .getOne();
+    if (
+      AddHistory?.id == null &&
+      itemDates.userid &&
+      itemDates.userid !== 0 &&
+      itemDates.userid >= 0
+    ) {
+      // 添加数据
+      await this.SelectedDataHistoryRepository.insert(itemDates);
+      return {
+        code: 200,
+        message: '数据添加成功!',
+      };
+    }
+    // 未登录
+    if (!itemDates.userid && itemDates.userid == 0 && itemDates.userid <= 0) {
+      throw new HttpException('未登录', HttpStatus.BAD_REQUEST);
+    }
+    //  已有数据
+    if (AddHistory?.id) {
+      throw new HttpException('已有数据', HttpStatus.BAD_REQUEST);
+    }
+  }
+  // -----删除收藏数据------
+  async cityHouseListCopyDelete(id: number, userid: number) {
     // 方法1：直接删除并检查影响行数（推荐）
-    const deleteResult = await this.SelectedDataCopyRepository.delete(id);
+    const deleteResult = await this.SelectedDataCopyRepository.delete({
+      houseId: id,
+      userid,
+    });
 
     if (deleteResult.affected === 0) {
       throw new NotFoundException('指定的数据不存在'); // 返回404状态码
     }
-
     return {
       Code: 200,
       message: '删除成功!',
@@ -368,7 +383,6 @@ export class HomeService {
       .addOrderBy('housMessage.id', 'ASC')
       .getMany();
     // Merge
-
     const houseUserMerge = async () => {
       const [ossImages1, CitiesAllData2] = await Promise.all([
         // 获取oss图片列表
@@ -435,22 +449,15 @@ export class HomeService {
     };
   }
   //-----------获取指定城市的房屋商品图片----------
-  async getCityHouseImg(id: number | null = null, History: boolean) {
+  async getCityHouseImg(id: number) {
     let houseKeyimgData: houseKeyimg[] = [];
-    if (History) {
-      houseKeyimgData = await this.houseKeyimgRepository
-        .createQueryBuilder('houseKeyimg')
-        .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
-        .where('houseKeyimg.cityId = :cityId', { cityId: id })
-        .getMany();
-    }
 
-    // else {
-    //   houseKeyimgData = await this.houseKeyimgRepository
-    //     .createQueryBuilder('houseKeyimg')
-    //     .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
-    //     .getMany();
-    // }
+    houseKeyimgData = await this.houseKeyimgRepository
+      .createQueryBuilder('houseKeyimg')
+      .leftJoinAndSelect('houseKeyimg.houseimg', 'houseimg')
+      .where('houseKeyimg.cityId = :cityId', { cityId: id })
+      .getMany();
+
     // 合并数据houseKeyimgData
     const houseKeyimgDataMeger = async () => {
       const [ossImages, CitiesAllData] = await Promise.all([

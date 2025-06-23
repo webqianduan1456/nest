@@ -16,5 +16,6 @@ export class itemDates {
   Discount2: string;
   DiscountMessage: string;
   Comment: number;
-  flay: number;
+  housid: number;
+  userid: number;
 }

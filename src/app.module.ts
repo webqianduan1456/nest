@@ -25,6 +25,12 @@ import { houseimg } from './Entity/house/houseKeyimg/houseimg.entity';
 import { SelectedDataCopy } from './Entity/SelectedDataCopy';
 import { OrderDataSource } from './order.datasource';
 import { OrderModule } from './Order/order.module';
+import { UserMessage } from './user.datasource';
+import { AuthModule } from './Auth/auth.module';
+import { SelectedDataHistory } from './Entity/SelectedDataHistory';
+import { ChatModule } from './socket/chat.module';
+import { JwtModule } from '@nestjs/jwt';
+import { BullModule } from '@nestjs/bull';
 
 @Global()
 @Module({
@@ -35,6 +41,7 @@ import { OrderModule } from './Order/order.module';
       load: [
         () => import('../config/default.json'),
         () => import('../config/oss.json'),
+        () => import('../config/auth.json'),
       ],
     }),
     // 数据库连接Home
@@ -68,6 +75,7 @@ import { OrderModule } from './Order/order.module';
           SelectedData,
           houseimg,
           SelectedDataCopy,
+          SelectedDataHistory,
         ],
         // 同步本地的schema与数据库 --> 初始化的时候去使用
         retryAttempts: 3,
@@ -75,8 +83,7 @@ import { OrderModule } from './Order/order.module';
         logging: ['error'],
       }),
     }),
-
-    // 数据库连接Home
+    // 数据库连接resourcehouse
     TypeOrmModule.forRootAsync({
       name: 'db2',
       useFactory: () => ({}),
@@ -87,7 +94,6 @@ import { OrderModule } from './Order/order.module';
         return qqDataSource;
       },
     }),
-
     // 数据库连接Order
     TypeOrmModule.forRootAsync({
       name: 'order',
@@ -99,10 +105,41 @@ import { OrderModule } from './Order/order.module';
         return OrderDataSource;
       },
     }),
+    // 数据库连接User
+    TypeOrmModule.forRootAsync({
+      name: 'user',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!UserMessage.isInitialized) {
+          await UserMessage.initialize();
+        }
+        return UserMessage;
+      },
+    }),
+    // 注册jwt
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('auth.secret'),
+        signOptions: { expiresIn: '1d' },
+      }),
+      inject: [ConfigService],
+    }),
+    // BUll连接redis
+    BullModule.forRoot({
+      redis: {
+        host: '47.122.47.101',
+        port: 6379,
+        password: '1989315788',
+        maxRetriesPerRequest: 10,
+        db: 0,
+      },
+    }),
     HomeModule,
     OrderModule,
+    AuthModule,
+    ChatModule,
   ],
   providers: [OssService],
-  exports: [OssService],
+  exports: [OssService, JwtModule],
 })
 export class AppModule {}

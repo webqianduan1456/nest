@@ -15,6 +15,6 @@ export class houseimg {
   url: string;
   // 添加一对多关系(houseKeyimg)
   @ManyToOne(() => houseKeyimg, (houseKeyimg) => houseKeyimg.houseimg)
-  @JoinColumn({ name: 'imgId' })
+  @JoinColumn({ name: 'imgId', referencedColumnName: 'orderIndex' })
   houseKeyimges_a?: houseKeyimg;
 }

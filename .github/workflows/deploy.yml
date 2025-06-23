@@ -32,6 +32,15 @@ jobs:
           }
           EOF
 
+      - name: Setup auth
+        run: |
+          cat > config/auth.json <<EOF
+                {
+                  "auth": {
+                    "secret": "${{ secrets.AUTH }}"
+                  }
+                }
+          EOF
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh

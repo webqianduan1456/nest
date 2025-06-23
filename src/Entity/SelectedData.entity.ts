@@ -46,8 +46,6 @@ export class SelectedData {
   DiscountMessage: string;
   @Column()
   Comment: number;
-  @Column()
-  flay: number;
   // 添加多对一关系(Cities)
   @ManyToOne(() => Cities, (Cities) => Cities.SelectedData)
   @JoinColumn({ name: 'cityId' })

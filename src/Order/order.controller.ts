@@ -7,18 +7,18 @@ export class OrderController {
   constructor(private readonly OrderServices: OrderService) {}
   // 获取所有订单
   @Get()
-  findAll(@Query('Overall') Overall: number) {
-    return this.OrderServices.findAllOrder(Overall);
+  findAll(@Query('Overall') Overall: number, @Query('UserId') UserId: number) {
+    return this.OrderServices.findAllOrder(Overall, UserId);
   }
   // 获取近期订单
   @Get('Completed')
-  findCompletedOrder() {
-    return this.OrderServices.findCompletedOrder();
+  findCompletedOrder(@Query('UserId') UserId: number) {
+    return this.OrderServices.findCompletedOrder(UserId);
   }
   // 获取待支付订单
   @Get('Waiting')
-  findWaitingOrder() {
-    return this.OrderServices.findWaitingOrder();
+  findWaitingOrder(@Query('UserId') UserId: number) {
+    return this.OrderServices.findWaitingOrder(UserId);
   }
   // 创建订单
   @Post('CreateOrder')
@@ -32,12 +32,7 @@ export class OrderController {
   }
   // 更新订单
   @Post('UpdateOrder')
-  update(@Body() Body: { houseId: number }) {
+  update(@Body() Body: { houseId: number; UserId: number }) {
     return this.OrderServices.updateOrder(Body);
-  }
-  // 删除订单
-  @Post()
-  remove(@Body() houseId: number) {
-    return this.OrderServices.deleteOrder(houseId);
   }
 }

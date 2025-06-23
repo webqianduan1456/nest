@@ -6,14 +6,16 @@ import { orderDataType } from './type/orderData';
 import { RedisService } from '../redis';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { OssService } from '../OSS/oss';
 
 interface OrderQueueJob {
   houseId: number;
+  userid: number;
 }
-
 @Injectable()
 export class OrderService {
   constructor(
+    private readonly ossService: OssService,
     @InjectRepository(AllOrder, 'order')
     private readonly OrderRepository: Repository<AllOrder>,
     // redis缓存
@@ -23,11 +25,32 @@ export class OrderService {
     private readonly orderQueue: Queue<OrderQueueJob>,
   ) {}
   //  获取所有订单
-  async findAllOrder(Overall: number) {
+  async findAllOrder(Overall: number, UserId: number) {
     const Order = this.OrderRepository.createQueryBuilder('Order')
       .where('Order.Overall = :Overall', { Overall })
+      .andWhere('Order.userid = :userid', { userid: UserId })
       .getMany();
-
+    // 合并数据url
+    const GetOrderMergeUrl = async () => {
+      const [ossImages, SelectedDataLists] = await Promise.all([
+        // 获取oss图片列表
+        this.ossService.listImagesInFolder('img/NestImgs/'),
+        // 获取数据库数据
+        Order,
+      ]);
+      if (SelectedDataLists) {
+        const Selected = SelectedDataLists.map((item) => {
+          console.log(item.houseId);
+          return {
+            ...item,
+            url: ossImages[item.houseId - 1],
+          };
+        });
+        return {
+          SelectedS: Selected,
+        };
+      }
+    };
     const formatDate = (startDate: Date, endDate: Date) => {
       const formatSingleDate = (date: Date) => {
         const weekDays = [
@@ -60,26 +83,52 @@ export class OrderService {
         endDate: endDateInfo,
       };
     };
-    const orders = (await Order).map((item) => {
-      const { startDate, endDate } = formatDate(item.StartTime, item.EndTime);
-      return {
-        ...item,
-        StartTime: startDate.dateStr,
-        StartTimeWeek: startDate.weekDay,
-        StartTimeTime: startDate.time,
-        EndTime: endDate.dateStr,
-        EndTimeWeek: endDate.weekDay,
-        EndTimeTime: endDate.time,
-      };
-    });
+    // 合并所有数据
+    const orderData = await GetOrderMergeUrl();
+    const orders =
+      orderData?.SelectedS?.map((item) => {
+        const { startDate, endDate } = formatDate(
+          new Date(item.StartTime),
+          new Date(item.EndTime),
+        );
+        return {
+          ...item,
+          StartTime: startDate.dateStr,
+          StartTimeWeek: startDate.weekDay,
+          StartTimeTime: startDate.time,
+          EndTime: endDate.dateStr,
+          EndTimeWeek: endDate.weekDay,
+          EndTimeTime: endDate.time,
+        };
+      }) || [];
     return orders;
   }
   //  获取近期的订单
-  async findCompletedOrder() {
+  async findCompletedOrder(UserId: number) {
     const CompletedOrder = this.OrderRepository.createQueryBuilder('Order')
       .where('Order.Overall = :Overall', { Overall: 1 })
+      .andWhere('Order.userid = :userid', { userid: UserId })
       .getMany();
-
+    // 合并数据url
+    const GetOrderMergeUrl = async () => {
+      const [ossImages, SelectedDataLists] = await Promise.all([
+        // 获取oss图片列表
+        this.ossService.listImagesInFolder('img/NestImgs/'),
+        // 获取数据库数据
+        CompletedOrder,
+      ]);
+      if (SelectedDataLists) {
+        const Selected = SelectedDataLists.map((item) => {
+          return {
+            ...item,
+            url: ossImages[item.houseId - 1],
+          };
+        });
+        return {
+          SelectedS: Selected,
+        };
+      }
+    };
     // 转化日期
     const formatDate = (startDate: Date, endDate: Date) => {
       const formatSingleDate = (date: Date) => {
@@ -113,20 +162,21 @@ export class OrderService {
         endDate: endDateInfo,
       };
     };
-
-    const newCompletedOrder = (await CompletedOrder).map((item) => {
-      const { startDate, endDate } = formatDate(item?.StartTime, item.EndTime);
-      return {
-        ...item,
-        StartTime: startDate.dateStr,
-        StartTimeWeek: startDate.weekDay,
-        StartTimeTime: startDate.time,
-        EndTime: endDate.dateStr,
-        EndTimeWeek: endDate.weekDay,
-        EndTimeTime: endDate.time,
-      };
-    });
-
+    // 合并所有数据
+    const orderData = await GetOrderMergeUrl();
+    const newCompletedOrder =
+      orderData?.SelectedS.map((item) => {
+        const { startDate, endDate } = formatDate(item.StartTime, item.EndTime);
+        return {
+          ...item,
+          StartTime: startDate.dateStr,
+          StartTimeWeek: startDate.weekDay,
+          StartTimeTime: startDate.time,
+          EndTime: endDate.dateStr,
+          EndTimeWeek: endDate.weekDay,
+          EndTimeTime: endDate.time,
+        };
+      }) || [];
     // 前10天的日期内的订单
     function isDateInLast10Days(targetDateStr: string | number | Date) {
       // 声明目标日期变量
@@ -161,10 +211,10 @@ export class OrderService {
 
       // 计算10天前的日期（毫秒级计算：1天 = 24*60*60*1000 毫秒）
       const tenDaysAgo = new Date(today);
-      tenDaysAgo.setDate(today.getDate() - 20); // 减去10天
+      tenDaysAgo.setDate(today.getDate() - 10); // 减去10天
 
       // 判断目标日期是否在 [tenDaysAgo, today) 范围内
-      return targetDate >= tenDaysAgo && targetDate < today;
+      return targetDate >= tenDaysAgo && targetDate <= today;
     }
     const newCompletedOrders = newCompletedOrder.map((item) => {
       if (isDateInLast10Days(item.StartTime)) {
@@ -173,19 +223,22 @@ export class OrderService {
         };
       }
     });
+
     return newCompletedOrders;
   }
-
   //  获取待支付的订单
-  async findWaitingOrder() {
+  async findWaitingOrder(UserId: number) {
     const WaitingOrder = this.OrderRepository.createQueryBuilder('Order')
       .where('Order.Overall = :Overall', { Overall: 0 })
+      .andWhere('Order.userid = :userid', { userid: UserId })
       .getMany();
+    if ((await WaitingOrder).length <= 0) return;
     // 获取当前redis时间
     const waitingOrders = await WaitingOrder;
     const time = await this.redisService.ttl(
-      `order${waitingOrders[0]?.houseId ?? ''}`,
+      `order${waitingOrders[0].houseId}userid:${waitingOrders[0].userid}`,
     );
+    console.log(time, waitingOrders[0]?.houseId);
     // 转化日期
     const formatDate = (startDate: Date, endDate: Date) => {
       const formatSingleDate = (date: Date) => {
@@ -240,55 +293,90 @@ export class OrderService {
     const Data = await this.OrderRepository.createQueryBuilder('Order')
       .where('Order.houseId = :houseId', { houseId: OrderData.houseId })
       .andWhere('Order.Overall = :Overall', { Overall: OrderData.Overall })
+      .andWhere('Order.userid = :userid', { userid: OrderData.userid })
       .getMany();
-    if (Data.length > 0) {
+    console.log(
+      Data.length > 0,
+      Data.some((item) => item.houseId === OrderData.houseId),
+    );
+    // 判断有没有登录
+    if (!OrderData.userid) {
+      return {
+        code: 401,
+        message: '未登录',
+        success: false,
+      };
+    }
+    // 判断是否有未支付的订单
+    if (
+      Data.length > 0 &&
+      Data.some((item) => item.houseId === OrderData.houseId)
+    ) {
       return {
         code: 400,
         message: '该房屋已有相关订单，请勿重复创建',
         success: false,
       };
-    } else {
-      // 创建订单
-      await this.OrderRepository.insert(OrderData);
-      // 缓存到redis
-      await this.redisService.set(`order${OrderData.houseId}`, OrderData, 1800);
-      // 获取当前任务redis时间
-      const time = await this.redisService.ttl(`order${OrderData.houseId}`);
-      // 添加延迟任务到队列
-      await this.orderQueue.add(
-        'cancelOrder',
-        {
-          houseId: OrderData.houseId,
-        },
-        {
-          delay: time * 1000,
-          attempts: 2,
-          removeOnComplete: true,
-          jobId: `cancelOrder_${OrderData.houseId}`,
-        },
-      );
-
-      return {
-        code: 200,
-        message: '已完成预约!',
-      };
     }
+
+    // 创建订单
+    await this.OrderRepository.insert(OrderData);
+    // 缓存到redis
+    await this.redisService.set(
+      `order${OrderData.houseId}userid:${OrderData.userid}`,
+      OrderData,
+      1800,
+    );
+    // 获取当前任务redis时间
+    const time = await this.redisService.ttl(
+      `order${OrderData.houseId}userid:${OrderData.userid}`,
+    );
+    // 添加延迟任务到队列
+    await this.orderQueue.add(
+      'cancelOrder',
+      {
+        houseId: OrderData.houseId,
+        userid: OrderData.userid,
+      },
+      {
+        delay: time * 1000,
+        attempts: 2,
+        removeOnComplete: true,
+        jobId: `cancelOrder_${OrderData.userid}`,
+      },
+    );
+
+    return {
+      code: 200,
+      message: '已完成预约!',
+    };
   }
   // 更新订单
-  async updateOrder(Body: { houseId: number }) {
-    const orders = await this.OrderRepository.createQueryBuilder('Order')
+  async updateOrder(Body: { houseId: number; UserId: number }) {
+    const UpOrder = await this.OrderRepository.createQueryBuilder('Order')
       .where('Order.houseId = :houseId', { houseId: Body.houseId })
       .andWhere('Order.Overall = :Overall', { Overall: 0 })
+      .andWhere('Order.userid = :userid', { userid: Body.UserId })
       .getMany();
+
     // 有值才更新
-    if (orders.length > 0) {
+    if (UpOrder.length > 0 && Body.houseId) {
       await this.OrderRepository.update(
         { houseId: Body.houseId, Overall: 0 },
         { Overall: 1 },
       );
       // 删除延迟取消任务(Bull队列任务)
-      await this.orderQueue.removeJobs(`cancelOrder_${Body.houseId}`);
-      await this.redisService.del(`order${Body.houseId}`);
+      await this.orderQueue.removeJobs(`cancelOrder_${Body.UserId}`);
+      await this.redisService.del(`order${Body.houseId}userid:${Body.UserId}`);
+      await this.redisService.del(`bull:order:cancelOrder_${Body.UserId}`);
+      // 优化：仅删除当前用户的延迟任务
+      await this.orderQueue.getDelayed().then((jobs) => {
+        const userJobs = jobs.filter(
+          (job) => job.name === `cancelOrder_${Body.UserId}`,
+        );
+        return Promise.all(userJobs.map((job) => job.remove()));
+      });
+
       return {
         code: 200,
         message: '订单已更新',
@@ -301,10 +389,11 @@ export class OrderService {
     };
   }
   // 删除订单
-  async deleteOrder(houseId: number) {
+  async deleteOrder(houseId: number, userid: number) {
     const deleteOrders = await this.OrderRepository.delete({
       houseId,
       Overall: 0,
+      userid,
     });
     // 判断是否有行被删除
     if (deleteOrders?.affected && deleteOrders.affected > 0) {
@@ -317,8 +406,5 @@ export class OrderService {
       code: 400,
       message: '未找到相关订单',
     };
-  }
-  getAllOrders() {
-    return 1;
   }
 }

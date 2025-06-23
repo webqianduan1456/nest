@@ -6,4 +6,5 @@ export interface orderDataType {
   totalPrice: number;
   Overall: number;
   houseId: number;
+  userid: number;
 }

@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {} from '../User/user.entity';
 
 @Entity('AllOrder')
 export class AllOrder {
@@ -18,4 +19,6 @@ export class AllOrder {
   Overall: number;
   @Column()
   houseId: number;
+  @Column()
+  userid: number;
 }
