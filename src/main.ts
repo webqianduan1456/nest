@@ -19,6 +19,6 @@ async function bootstrap() {
   );
   // 减少传输体积压缩提高性能
   app.use(compression.default());
-  await app.listen(8889);
+  await app.listen(3000);
 }
 bootstrap();
