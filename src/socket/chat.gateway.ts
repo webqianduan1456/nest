@@ -18,7 +18,9 @@ interface tokenType {
 // 使用命名空间（可选），这里我们使用默认命名空间
 @WebSocketGateway(3001, {
   cors: {
-    origin: 'http://project.yqqlike.xin',
+    origin: 'https://your-vercel-app.vercel.app',
+    methods: ['GET', 'POST'],
+    transports: ['websocket'],
   },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
