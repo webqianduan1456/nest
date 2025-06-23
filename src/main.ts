@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // 启用 CORS（所有域名、所有方法都允许）
   app.enableCors({
-    origin: 'http://47.122.47.101:8889',
+    origin: '*',
     methods: ['GET', 'POST'],
   });
   // 限制请求次数
