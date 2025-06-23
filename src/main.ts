@@ -6,7 +6,10 @@ import * as compression from 'compression';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // 启用 CORS（所有域名、所有方法都允许）
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://47.122.47.101:8889',
+    methods: ['GET', 'POST'],
+  });
   // 限制请求次数
   app.use(
     rateLimit({
@@ -16,6 +19,6 @@ async function bootstrap() {
   );
   // 减少传输体积压缩提高性能
   app.use(compression.default());
-  await app.listen(3000);
+  await app.listen(8889);
 }
 bootstrap();
