@@ -19,7 +19,7 @@ interface tokenType {
 @WebSocketGateway(3001, {
   cors: {
     origin: 'https://your-vercel-app.vercel.app',
-    methods: ['GET', 'POST'],
+    path: '/socket.io',
     transports: ['websocket'],
   },
 })
