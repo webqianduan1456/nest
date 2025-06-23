@@ -17,9 +17,9 @@ interface tokenType {
 }
 // 使用命名空间（可选），这里我们使用默认命名空间
 @WebSocketGateway(3001, {
-  namespace: '/chats', // 保留命名空间
+  namespace: '/chats', // 明确使用命名空间
   cors: {
-    origin: 'https://project.yqqlike.xin', // 允许前端域名
+    origin: 'http://project.yqqlike.xin',
   },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
