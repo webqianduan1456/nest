@@ -15,13 +15,12 @@ interface tokenType {
   id: number;
   username: string;
 }
-// 使用命名空间（可选），这里我们使用默认命名空间
-@WebSocketGateway(8889, {
-  cors: {
-    cors: { origin: '*' },
-    path: '/socket.io',
-    transports: ['websocket'],
-  },
+//后端
+// 后端 WebSocket 配置
+@WebSocketGateway(301, {
+  path: '/socket.io', // ✅ 必须匹配代理重写后的路径
+  transports: ['websocket'],
+  cors: { origin: '*' }, // 允许跨域
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
