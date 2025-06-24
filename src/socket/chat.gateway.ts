@@ -17,11 +17,11 @@ interface tokenType {
 }
 //后端
 // 后端 WebSocket 配置
-@WebSocketGateway(3001, {
+@WebSocketGateway({
   // path: '/socket.io', // ✅ 必须匹配代理重写后的路径
   transports: ['websocket'],
   host: '0.0.0.0',
-  cors: { origin: '*' }, // 允许跨域
+  cors: { origin: 'https://project.yqqlike.xin || *' }, // 允许跨域
   ws: true,
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
