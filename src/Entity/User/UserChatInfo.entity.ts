@@ -18,7 +18,7 @@ export class UserChatInfo {
   @Column()
   active: number;
   @Column()
-  oppositeId: number;
+  room: number;
   @Column()
   userid: number;
   // 添加多对一关系(User)

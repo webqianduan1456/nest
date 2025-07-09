@@ -7,10 +7,8 @@ import { RedisService } from '../redis';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { Friend } from '../Entity/User/Friend.entity';
-interface applyType {
-  oppositeId: number;
-  userid: number;
-}
+import { UserChatInfo } from '../Entity/User/UserChatInfo.entity';
+import { Message } from './type';
 interface n {
   userid?: number;
   oppositeId?: number;
@@ -19,15 +17,22 @@ interface n {
 @Injectable()
 export class UserService {
   constructor(
+    // ----------表单----------
+    // 用户信息
     @InjectRepository(UserInfo, 'user')
     private readonly userRepository: Repository<UserInfo>,
+    // 用户朋友列表
     @InjectRepository(Friend, 'user')
     private readonly FriendRepository: Repository<Friend>,
+    // 用户聊天信息
+    @InjectRepository(UserChatInfo, 'user')
+    private readonly UserChatInfoRepository: Repository<UserChatInfo>,
+
     // redis缓存
     private readonly redisService: RedisService,
     // 创建队列
     @InjectQueue('applyFor')
-    private readonly applyQueue: Queue<applyType>,
+    private readonly applyQueue: Queue,
   ) {}
   // 首次登录(auto保护)
   async login(Body: { username: string; userpassword: string }) {
@@ -204,7 +209,6 @@ export class UserService {
             userid: getApply.oppositeId,
           });
           // 删除
-          console.log(getApply);
           await this.FriendRepository.remove(getApply);
         }
       }
@@ -311,5 +315,25 @@ export class UserService {
       code: 404,
       message: '未找到数据',
     };
+  }
+  // 获取用户聊天信息
+  async getChatMessage(room: number) {
+    const chat = await this.UserChatInfoRepository.createQueryBuilder('chat')
+      .where('chat.room = :room', { room })
+      .orderBy('chat.time', 'ASC')
+      .getMany();
+    if (chat.length > 0) {
+      return chat;
+    }
+    return {
+      code: 404,
+      message: '没有相关数据',
+    };
+  }
+  // 添加用户聊天信息
+  async createChatMessage(infoData: Array<Message>) {
+    if (Object.keys(infoData).length > 0) {
+      await this.UserChatInfoRepository.insert([...infoData]);
+    }
   }
 }

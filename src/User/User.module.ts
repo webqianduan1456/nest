@@ -7,7 +7,7 @@ import { UserChatInfo } from '../Entity/User/UserChatInfo.entity';
 import { RedisService } from '../redis';
 import { BullModule } from '@nestjs/bull';
 import { Friend } from '../Entity/User/Friend.entity';
-import { applyProcessor } from '../Bull/apply.processor';
+import { applyProcessor } from '../Bull/user.processor';
 
 @Module({
   imports: [

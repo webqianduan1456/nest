@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { UserService } from './User.service';
+import { Message } from './type';
 
 @Controller('user')
 export class UserController {
@@ -52,5 +53,15 @@ export class UserController {
       active,
       username,
     );
+  }
+  // 获取用户聊天信息
+  @Get('getChatMessage')
+  getChatMessage(@Query('room') room: number) {
+    return this.UserServices.getChatMessage(room);
+  }
+  // 添加用户聊天信息
+  @Post('createChatMessage')
+  createChatMessage(infoData: Array<Message>) {
+    return this.UserServices.createChatMessage(infoData);
   }
 }

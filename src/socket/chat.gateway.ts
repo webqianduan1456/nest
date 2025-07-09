@@ -10,17 +10,15 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '../redis';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { tokenType } from './type/type';
 
-interface tokenType {
-  id: number;
-  username: string;
-}
-//后端
 // 后端 WebSocket 配置
-@WebSocketGateway({
+@WebSocketGateway(3001, {
   transports: ['websocket'],
   host: '0.0.0.0',
-  cors: { origin: 'http://project.yqqlike.xin' }, // 允许跨域
+  cors: { origin: '*' }, // 允许跨域
   ws: true,
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -28,15 +26,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly JwtStrategyS: JwtService,
     // redis缓存
     private readonly redisService: RedisService,
+    // 创建队列
+    @InjectQueue('applyFor')
+    private readonly applyQueue: Queue,
   ) {}
   @WebSocketServer() server: Server;
-
-  // 用于存储用户ID和对应的socket实例
-  private users: Map<string, Socket> = new Map();
-
-  // 当客户端连接
-  handleConnection() {
-    console.log(`连接状态成功`);
+  // 断开
+  handleConnection(client: Socket) {
+    console.log(`客户端 ${client.id} 已断开`);
+  }
+  // 连接
+  handleDisconnect(client: Socket) {
+    console.log(`客户端 ${client.id} 已连接`);
   }
   //  验证token同步申请列表
   @SubscribeMessage('auth')
@@ -64,46 +65,77 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     }
+    // 将查询到的申请信息返回
     const destruction = await Promise.all(ApplicationList);
     return destruction;
   }
-
-  // 当客户端断开
-  handleDisconnect(client: Socket) {
-    console.log(`断开状态: ${client.id}`);
-    // 从映射中删除该客户端
-    for (const [userId, socket] of this.users.entries()) {
-      if (socket.id === client.id) {
-        this.users.delete(userId);
-        break;
-      }
-    }
-  }
-
-  // 处理一对一消息
-  @SubscribeMessage('user')
+  // 连接成功加入房间
+  @SubscribeMessage('aloneRoom')
   async handlePrivateMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: string | object,
+    @MessageBody() data: { userid: number; oppositeId: number },
   ) {
+    const { userid, oppositeId } = data;
+    const room = userid + oppositeId;
+
     // 等待加入房间完成
-    await client.join('room');
-
-    const clients = await this.server.in('room').fetchSockets();
-    console.log(`房间 "room" 内有 ${clients.length} 个客户端`);
-
-    clients.forEach((c) => console.log('客户端 ID:', c.id));
-
-    client.to('room').emit('roomMessage', { content: data });
+    await client.join(`room${room}`);
+    // 获取当前在线房间人员
+    const clients = await this.server.in(`room${room}`).fetchSockets();
+    console.log(`房间 ${room} 内有 ${clients.length} 个客户端${userid}`);
   }
+  // 发送消息
+  @SubscribeMessage('send')
+  async handleSend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: { userid: number; oppositeId: number; value: Array<string> },
+  ) {
+    // 解构用户传递过来的数据
+    const { userid, oppositeId, value } = data;
+    const room = userid + oppositeId;
+    // 向指定房间发送广播
+    this.server
+      .to(`room${room}`)
+      .emit(`roomMessage${room}`, { content: value });
 
-  // 根据socket实例查找用户ID
-  private getUserIdBySocket(socket: Socket): string | undefined {
-    for (const [userId, sock] of this.users.entries()) {
-      if (sock.id === socket.id) {
-        return userId;
-      }
-    }
-    return undefined;
+    //  创建消息缓存redis
+    await this.redisService.set(`Message${room}`, value, 60);
+    // 获取redis缓存的时间
+    const time = await this.redisService.ttl(`Message${room}`);
+    // 每次发送消息时，先移除之前的任务
+    await this.applyQueue.removeJobs(`Message${room}`);
+    // 再次创建队列
+    await this.applyQueue.add(
+      'message',
+      {
+        userid: userid,
+        oppositeId: oppositeId,
+      },
+      {
+        delay: (time - 2) * 1000,
+        attempts: 2,
+        removeOnComplete: true,
+        jobId: `Message${room}`,
+      },
+    );
+    // 返回redis指定房间缓存的消息
+    const redis = await this.redisService.get(`Message${room}`);
+    return redis;
+  }
+  //刷新获取消息
+  @SubscribeMessage('getSend')
+  async getSend(
+    @MessageBody()
+    data: {
+      userid: number;
+      oppositeId: number;
+    },
+  ) {
+    // 解构用户传递过来的数据
+    const { userid, oppositeId } = data;
+    // 返回redis指定房间缓存的消息
+    const redis = await this.redisService.get(`Message${userid + oppositeId}`);
+    return redis;
   }
 }
