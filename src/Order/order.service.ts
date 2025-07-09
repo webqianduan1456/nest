@@ -40,7 +40,6 @@ export class OrderService {
       ]);
       if (SelectedDataLists) {
         const Selected = SelectedDataLists.map((item) => {
-          console.log(item.houseId);
           return {
             ...item,
             url: ossImages[item.houseId - 1],
@@ -238,7 +237,6 @@ export class OrderService {
     const time = await this.redisService.ttl(
       `order${waitingOrders[0].houseId}userid:${waitingOrders[0].userid}`,
     );
-    console.log(time, waitingOrders[0]?.houseId);
     // 转化日期
     const formatDate = (startDate: Date, endDate: Date) => {
       const formatSingleDate = (date: Date) => {
@@ -295,10 +293,6 @@ export class OrderService {
       .andWhere('Order.Overall = :Overall', { Overall: OrderData.Overall })
       .andWhere('Order.userid = :userid', { userid: OrderData.userid })
       .getMany();
-    console.log(
-      Data.length > 0,
-      Data.some((item) => item.houseId === OrderData.houseId),
-    );
     // 判断有没有登录
     if (!OrderData.userid) {
       return {

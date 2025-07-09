@@ -32,12 +32,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
   @WebSocketServer() server: Server;
   // 断开
-  handleConnection(client: Socket) {
-    console.log(`客户端 ${client.id} 已断开`);
+  handleConnection() {
+    // console.log(`客户端 ${client.id} 已断开`);
   }
   // 连接
-  handleDisconnect(client: Socket) {
-    console.log(`客户端 ${client.id} 已连接`);
+  handleDisconnect() {
+    // console.log(`客户端 ${client.id} 已连接`);
   }
   //  验证token同步申请列表
   @SubscribeMessage('auth')
@@ -81,8 +81,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 等待加入房间完成
     await client.join(`room${room}`);
     // 获取当前在线房间人员
-    const clients = await this.server.in(`room${room}`).fetchSockets();
-    console.log(`房间 ${room} 内有 ${clients.length} 个客户端${userid}`);
+    // const clients = await this.server.in(`room${room}`).fetchSockets();
+    // console.log(`房间 ${room} 内有 ${clients.length} 个客户端${userid}`);
   }
   // 发送消息
   @SubscribeMessage('send')

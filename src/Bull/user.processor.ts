@@ -27,7 +27,6 @@ export class applyProcessor {
     const infoData: Array<Message> | null = await this.redisService.get(
       `Message${userid + oppositeId}`,
     );
-    console.log(infoData);
 
     if (infoData) {
       // 将数据存到数据库
