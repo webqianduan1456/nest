@@ -15,7 +15,7 @@ import { Queue } from 'bull';
 import { tokenType } from './type/type';
 
 // 后端 WebSocket 配置
-@WebSocketGateway({
+@WebSocketGateway(3001, {
   transports: ['websocket'],
   host: '0.0.0.0',
   cors: { origin: '*' }, // 允许跨域
@@ -32,19 +32,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
   @WebSocketServer() server: Server;
   // 断开
-  handleConnection() {
-    // console.log(`客户端 ${client.id} 已断开`);
+  handleConnection(client: Socket) {
+    console.log(`客户端 ${client.id} 已断开`);
   }
   // 连接
-  handleDisconnect() {
-    // console.log(`客户端 ${client.id} 已连接`);
+  handleDisconnect(client: Socket) {
+    console.log(`客户端 ${client.id} 已连接`);
   }
   //  验证token同步申请列表
   @SubscribeMessage('auth')
   async AuthToken(@MessageBody('data') token: string) {
+    console.log('验证成功');
+
     const keys: string[] = [];
     let cursor = '0';
     const ApplicationList: object[] = [];
+    console.log('验证成功1');
+
     // 验证token
     if (token) {
       const tokenS: tokenType = await this.JwtStrategyS.verify(token);
@@ -65,6 +69,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     }
+    console.log('验证成功2');
+
     // 将查询到的申请信息返回
     const destruction = await Promise.all(ApplicationList);
     return destruction;
@@ -81,8 +87,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 等待加入房间完成
     await client.join(`room${room}`);
     // 获取当前在线房间人员
-    // const clients = await this.server.in(`room${room}`).fetchSockets();
-    // console.log(`房间 ${room} 内有 ${clients.length} 个客户端${userid}`);
+    const clients = await this.server.in(`room${room}`).fetchSockets();
+    console.log(`房间 ${room} 内有 ${clients.length} 个客户端${userid}`);
   }
   // 发送消息
   @SubscribeMessage('send')
