@@ -18,7 +18,8 @@ import { tokenType } from './type/type';
 @WebSocketGateway({
   transports: ['websocket'],
   host: '0.0.0.0',
-  cors: { origin: '*' }, // 允许跨域
+  // 允许跨域
+  cors: { origin: '*' },
   ws: true,
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
