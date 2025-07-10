@@ -283,7 +283,6 @@ export class HomeService {
       return '已经存在或未登录';
     }
   }
-
   // -------获取历史记录-------
   async getSelectedDataHistory(userid: number) {
     const getHistory =
@@ -315,9 +314,19 @@ export class HomeService {
     const AddHistory =
       await this.SelectedDataHistoryRepository.createQueryBuilder('AddHistory')
         .where('AddHistory.housid = :housid', { housid: itemDates.housid })
+        .where('AddHistory.userid = :userid', { userid: itemDates.userid })
         .getOne();
+    // 未登录
+    if (!itemDates.userid && itemDates.userid == 0 && itemDates.userid <= 0) {
+      throw new HttpException('未登录', HttpStatus.BAD_REQUEST);
+    }
+    //  已有数据
+    if (AddHistory) {
+      throw new HttpException('已有数据', HttpStatus.BAD_REQUEST);
+    }
+    // 存储数据
     if (
-      AddHistory?.id == null &&
+      !AddHistory &&
       itemDates.userid &&
       itemDates.userid !== 0 &&
       itemDates.userid >= 0
@@ -328,14 +337,6 @@ export class HomeService {
         code: 200,
         message: '数据添加成功!',
       };
-    }
-    // 未登录
-    if (!itemDates.userid && itemDates.userid == 0 && itemDates.userid <= 0) {
-      throw new HttpException('未登录', HttpStatus.BAD_REQUEST);
-    }
-    //  已有数据
-    if (AddHistory?.id) {
-      throw new HttpException('已有数据', HttpStatus.BAD_REQUEST);
     }
   }
   // -----删除收藏数据------
