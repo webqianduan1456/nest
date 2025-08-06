@@ -5,6 +5,7 @@ import { Cities } from './Cities.entity';
 export class City {
   @PrimaryGeneratedColumn()
   id?: number;
+
   @Column()
   title: string;
   // 添加一对多关系

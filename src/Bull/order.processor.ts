@@ -5,7 +5,6 @@ import { OrderService } from '../Order/order.service';
 @Processor('order')
 export class OrderProcessor {
   constructor(private readonly orderService: OrderService) {}
-
   @Process('cancelOrder')
   async handleCancelOrder(job: Job<{ houseId: number; userid: number }>) {
     const { houseId, userid } = job.data;
