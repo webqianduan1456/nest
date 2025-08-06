@@ -71,8 +71,6 @@ jobs:
           echo "错误5"
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.ALIYUN_SERVER_PORT }}" \
-            set -x  
-            echo "错误4.8"
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='node_modules/' \
