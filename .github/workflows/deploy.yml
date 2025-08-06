@@ -18,7 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --production
-              
+
       - name: Create oss.json
         run: |
           set -x  
@@ -48,18 +48,17 @@ jobs:
       - name: Setup SSH
         run: |
           set -x 
-          echo "错误3" 
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           echo "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.ALIYUN_SERVER_POST || 22 }} ${{ secrets.ALIYUN_SERVER_IP }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+          echo "错误3" 
 
       - name: Verify SSH connection
         run: |
           set -x  
-          echo "错误4"
           if ! ssh -o BatchMode=yes -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo SSH连接成功"; then
             echo "::error::SSH连接失败"
             exit 1
@@ -68,29 +67,25 @@ jobs:
       - name: Sync code to server
         run: |
           set -x  
-          echo "错误5"
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.ALIYUN_SERVER_PORT }}" \
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='node_modules/' \
             ./ \
-            set -x  
-            echo "错误5.1"
             ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:${{ secrets.ALIYUN_DEPLOY_PATH }}
+            echo "错误5"
       - name: Rebuild and restart Docker containers
         run: |
           set -x 
-          echo "错误6" 
           ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
             "cd ${{ secrets.ALIYUN_DEPLOY_PATH }} && \
              docker-compose down && \
              docker-compose up -d --build"
-
+          echo "错误6"
       - name: Health check
         run: |
           set -x  
-          echo "错误7"
           ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
             "docker ps && \
              curl -I http://47.122.47.101:8889 || echo '健康检查失败'"
