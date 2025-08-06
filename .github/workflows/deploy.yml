@@ -60,7 +60,7 @@ jobs:
         run: |
           set -x  
           echo "错误4"
-          if ! ssh -o BatchMode=yes -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo SSH连接成功"; then
+          if ! ssh -o BatchMode=yes -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo SSH连接成功"; then
             echo "::error::SSH连接失败"
             exit 1
           fi
@@ -83,7 +83,7 @@ jobs:
         run: |
           set -x 
           echo "错误6" 
-          ssh -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
+          ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
             "cd ${{ secrets.ALIYUN_DEPLOY_PATH || '/var/www/app' }} && \
              docker-compose down && \
              docker-compose up -d --build"
@@ -92,6 +92,6 @@ jobs:
         run: |
           set -x  
           echo "错误7"
-          ssh -p ${{ secrets.ALIYUN_SERVER_POST }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
+          ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
             "docker ps && \
              curl -I http://47.122.47.101:8889 || echo '健康检查失败'"
