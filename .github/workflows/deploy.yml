@@ -85,7 +85,7 @@ jobs:
           set -x 
           echo "错误6" 
           ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} \
-            "cd ${{ secrets.ALIYUN_DEPLOY_PATH || '/var/www/app' }} && \
+            "cd ${{ secrets.ALIYUN_DEPLOY_PATH }} && \
              docker-compose down && \
              docker-compose up -d --build"
 
