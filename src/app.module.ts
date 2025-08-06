@@ -19,18 +19,21 @@ import { houseUser } from './Entity/house/houseUser.entity';
 import { housMessage } from './Entity/house/housMessage.entity';
 import { citiesArea } from './Entity/house/citiesArea.entity';
 import { HomeModule } from './Home/home/home.module';
-import { qqDataSource } from './db2.datasource';
+import { qqDataSource } from '../src/db/db2.datasource';
 import { SelectedData } from './Entity/SelectedData.entity';
 import { houseimg } from './Entity/house/houseKeyimg/houseimg.entity';
 import { SelectedDataCopy } from './Entity/SelectedDataCopy';
-import { OrderDataSource } from './order.datasource';
+import { OrderDataSource } from '../src/db/order.datasource';
 import { OrderModule } from './Order/order.module';
-import { UserMessage } from './user.datasource';
+import { UserMessage } from '../src/db/user.datasource';
 import { AuthModule } from './Auth/auth.module';
 import { SelectedDataHistory } from './Entity/SelectedDataHistory';
 import { ChatModule } from './socket/chat.module';
 import { JwtModule } from '@nestjs/jwt';
 import { BullModule } from '@nestjs/bull';
+import { UniAppHomeModule } from './Uniapp/uniapp-home/UniappHome.module';
+import { UniappUserModule } from './Uniapp/Uniapp-user/UniappUser.module';
+import { UniappUser } from './uniapp-db/user.datasource';
 
 @Global()
 @Module({
@@ -116,6 +119,17 @@ import { BullModule } from '@nestjs/bull';
         return UserMessage;
       },
     }),
+    // 连接uniapp中的UniappUser
+    TypeOrmModule.forRootAsync({
+      name: 'uniapp-userinfo',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!UniappUser.isInitialized) {
+          await UniappUser.initialize();
+        }
+        return UniappUser;
+      },
+    }),
     // 注册jwt
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
@@ -134,10 +148,14 @@ import { BullModule } from '@nestjs/bull';
         db: 0,
       },
     }),
+
     HomeModule,
     OrderModule,
     AuthModule,
     ChatModule,
+    // uniapp
+    UniAppHomeModule,
+    UniappUserModule,
   ],
   providers: [OssService],
   exports: [OssService, JwtModule],

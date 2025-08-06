@@ -1,7 +1,7 @@
+import { Friend } from '../Entity/User/Friend.entity';
+import { UserInfo } from '../Entity/User/user.entity';
+import { UserChatInfo } from '../Entity/User/UserChatInfo.entity';
 import { DataSource } from 'typeorm';
-import { UserInfo } from './Entity/User/user.entity';
-import { UserChatInfo } from './Entity/User/UserChatInfo.entity';
-import { Friend } from './Entity/User/Friend.entity';
 
 export const UserMessage = new DataSource({
   type: 'mysql',

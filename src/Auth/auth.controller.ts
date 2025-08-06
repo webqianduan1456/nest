@@ -5,16 +5,31 @@ import { AuthService } from './auth.service';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+  // ------------移动端auth验证------------
   //  优先经过第一层
+  @UseGuards(AuthGuard('uniapp-local'))
+  //  第二层
+  @Post('UniappLogin')
+  Login(@Request() req: { user: { id: number; username: string } }) {
+    console.log('uniapp', req?.user?.id);
+    // 首次登录生成Token
+    return this.authService.login(req.user);
+  }
+
+  // ------------pc端auth验证------------
+  //  优先经过第一层
+
   @UseGuards(AuthGuard('local'))
   //  第二层
   @Post('login')
   login(@Request() req: { user: { id: number; username: string } }) {
-    // 首次登录加密
+    console.log('pc', req?.user?.id);
+
+    // 首次登录生成Token
     return this.authService.login(req.user);
   }
 
-  // 这个路由用于测试JWT保护
+  // 这个路由用于验证用户二次token验证
   @UseGuards(AuthGuard('jwt'))
   @Post('AuthToken')
   getProfile(@Request() req: { user: { id: number; username: string } }) {

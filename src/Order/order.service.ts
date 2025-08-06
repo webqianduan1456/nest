@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { AllOrder } from '../Entity/Order/order.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { orderDataType } from './type/orderData';
@@ -7,6 +6,7 @@ import { RedisService } from '../redis';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { OssService } from '../OSS/oss';
+import { AllOrder } from '../Entity/Order/order.entity';
 
 interface OrderQueueJob {
   houseId: number;

@@ -39,22 +39,22 @@ export class UserService {
     const users = await this.userRepository
       .createQueryBuilder('user')
       .where('user.username = :username', { username: Body.username })
-      .andWhere('user.username = :username', {
-        userpassword: Body.userpassword,
-      })
-      .getMany();
-    if (!users[0]?.username && !users[0]?.userpassword) {
-      // 账号或密码不存在
+      .getOne();
+    // 验证密码和用户名
+    if (
+      !users?.username ||
+      !(await bcrypt.compare(Body.userpassword, users.userpassword))
+    ) {
       throw new HttpException('用户名或密码错误', HttpStatus.NOT_FOUND);
+    } else {
+      // 用户存在返回
+      return {
+        id: users.id,
+        username: users.username,
+        avatar: users.avatar,
+        userpassword: users.userpassword,
+      };
     }
-
-    // 用户存在返回
-    return {
-      id: users[0].id,
-      username: users[0].username,
-      avatar: users[0].avatar,
-      userpassword: users[0].userpassword,
-    };
   }
   // 注册
   async register(Body: {
@@ -62,6 +62,7 @@ export class UserService {
     userpassword: string;
     phone: string;
   }) {
+    // 将密码转为hash存储
     const hashPassword = await bcrypt.hash(Body.userpassword, 10);
     const register = await this.userRepository
       .createQueryBuilder('register')

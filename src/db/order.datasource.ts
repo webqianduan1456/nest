@@ -1,5 +1,5 @@
+import { AllOrder } from '../Entity/Order/order.entity';
 import { DataSource } from 'typeorm';
-import { AllOrder } from './Entity/Order/order.entity';
 
 export const OrderDataSource = new DataSource({
   type: 'mysql',

@@ -5,7 +5,6 @@ import { Message } from './type';
 @Controller('user')
 export class UserController {
   constructor(private readonly UserServices: UserService) {}
-
   // 注册
   @Post('register')
   register(

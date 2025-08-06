@@ -76,7 +76,6 @@ export class HomeService {
 
     return await SwiperImgAllMessageMerge();
   }
-
   // 获取国内和国外地理位置
   async getCity() {
     const city = this.cityRepository

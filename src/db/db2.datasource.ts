@@ -1,5 +1,5 @@
+import { Resource } from '../Entity/HouseResource/resource.entity';
 import { DataSource } from 'typeorm';
-import { Resource } from './Entity/HouseResource/resource.entity';
 
 export const qqDataSource = new DataSource({
   type: 'mysql',

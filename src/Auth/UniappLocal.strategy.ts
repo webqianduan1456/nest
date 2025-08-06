@@ -4,7 +4,10 @@ import { Injectable } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
+export class LocalStrategyUniapp extends PassportStrategy(
+  Strategy,
+  'uniapp-local',
+) {
   // 获取自定义字段(前端传递的字段必须是username和userpassword)
   constructor(private authService: AuthService) {
     super({
@@ -16,7 +19,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(username: string, userpassword: string) {
     // pc端
     // 将获取到的字段传入到验证函数
-    const user = (await this.authService.validateUser(
+    const user = (await this.authService.validateUserUniapp(
       username,
       userpassword,
     )) as object;
