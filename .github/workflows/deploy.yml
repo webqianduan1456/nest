@@ -78,7 +78,8 @@ jobs:
             set -x  
             echo "错误5.1"
             ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:${{ secrets.ALIYUN_DEPLOY_PATH || '/var/www/app' }}
-
+            set -x  
+            echo "错误5.2"
       - name: Rebuild and restart Docker containers
         run: |
           set -x 
