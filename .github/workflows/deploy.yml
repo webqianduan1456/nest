@@ -43,7 +43,7 @@ jobs:
       - name: Verify SSH connection
         run: |
           # 测试SSH连接是否成功
-          ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo SSH连接成功"
+          ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} 
 
       - name: Sync code to server
         run: |
