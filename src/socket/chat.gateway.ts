@@ -15,7 +15,7 @@ import { Queue } from 'bull';
 import { tokenType } from './type/type';
 
 // 后端 WebSocket 配置
-@WebSocketGateway({
+@WebSocketGateway(3001, {
   transports: ['websocket'],
   host: '0.0.0.0',
   // 允许跨域

@@ -141,7 +141,7 @@ import { UniappUser } from './uniapp-db/user.datasource';
     // BUll连接redis
     BullModule.forRoot({
       redis: {
-        host: '47.122.47.101',
+        host: '47.118.17.138',
         port: 6379,
         password: '1989315788',
         maxRetriesPerRequest: 10,
