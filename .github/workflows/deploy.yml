@@ -51,12 +51,13 @@ jobs:
         run: |
           rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }}" ./ ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:/root/nest-app/
 
-      - name: Rebuild and restart Docker containers
+      - name: Simple and Reliable Deploy
         run: |
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker-compose down || true"
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker stop nest-app || true"
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker rm nest-app || true"
+    
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker build -t nest-app ."
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker run -d -p 3000:3000 --name nest-app nest-app"
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker run -d -p 3000:3000 --name nest-app nest-app"ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker run -d -p 3000:3000 --name nest-app nest-app"
       - name: Health check
         run: |
-          # 使用secrets变量，指定Ed25519密钥
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker ps && curl -I http://localhost:8889"
