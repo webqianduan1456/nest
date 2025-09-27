@@ -53,11 +53,6 @@ jobs:
 
       - name: Simple and Reliable Deploy
         run: |
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker stop nest-app || true"
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker rm nest-app || true"
-    
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker build -t nest-app ."
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker run -d -p 3000:3000 --name nest-app nest-app"ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker run -d -p 3000:3000 --name nest-app nest-app"
-      - name: Health check
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker build -t nest-app ."      - name: Health check
         run: |
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker ps && curl -I http://localhost:8889"
