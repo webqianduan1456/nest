@@ -45,12 +45,10 @@ jobs:
 
       - name: Verify SSH connection
         run: |
-          # 指定使用Ed25519密钥
           ssh -i ~/.ssh/id_ed25519 -o ConnectTimeout=10 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo '连接成功'"
 
       - name: Sync code to server
         run: |
-          # 使用secrets变量，指定Ed25519密钥
           rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }}" ./ ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:/path/to/your/app
 
       - name: Rebuild and restart Docker containers
