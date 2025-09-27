@@ -54,7 +54,7 @@ jobs:
       - name: Rebuild and restart Docker containers
         run: |
           # 使用secrets变量，指定Ed25519密钥
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /path/to/your/app && docker-compose down && docker-compose up -d --build"
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker-compose down && docker-compose up -d --build"
 
       - name: Health check
         run: |
