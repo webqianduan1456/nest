@@ -53,6 +53,7 @@ jobs:
       - name: Simple and Reliable Deploy
         run: |
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker build -t nest-app ."
+     
       - name: Health check
         run: |
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker ps && curl -I http://localhost:8889"
