@@ -35,11 +35,11 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          
+
           # 使用Ed25519密钥文件名
           echo "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          
+
           ssh-keyscan -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SERVER_IP }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
@@ -53,6 +53,7 @@ jobs:
 
       - name: Simple and Reliable Deploy
         run: |
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker build -t nest-app ."      - name: Health check
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker build -t nest-app ."
+      - name: Health check
         run: |
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker ps && curl -I http://localhost:8889"
