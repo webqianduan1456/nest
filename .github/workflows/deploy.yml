@@ -36,7 +36,6 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
-          # 使用Ed25519密钥文件名
           echo "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
