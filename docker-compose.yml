@@ -1,76 +1,49 @@
-# 指定 Docker Compose 文件的版本
 version: '3.8'
 
-# 定义所有需要运行的服务（容器）
 services:
-  # 主应用服务（您的后端 API）
+
   app:
-    # 使用当前目录下的 Dockerfile 来构建镜像
     build: .
-    # 端口映射：将宿主机的 8889 端口映射到容器的 3000 端口
-    # 这样，通过访问 http://宿主机IP:8889 就能访问到容器内的应用
     ports:
       - '8889:3000'
-    # 指定依赖关系：确保 db 和 redis 服务先启动后，再启动 app 服务
     depends_on:
       - db
       - redis
-    # 设置容器内的环境变量，您的应用程序会读取这些变量来连接数据库和 Redis
     environment:
-      # 数据库相关配置
-      DB_HOST: db # 使用服务名 'db' 作为主机名，这是 Docker 内部网络 DNS 的特性
+      DB_HOST: db
       DB_PORT: 3306
       DB_USER: yqq
       DB_PASSWORD: 1989315788
       DB_DATABASE: home
-      # Redis 相关配置
-      REDIS_HOST: redis # 使用服务名 'redis' 作为主机名
+      REDIS_HOST: redis 
       REDIS_PORT: 6379
-      # 如果需要 Redis 密码，可以取消注释并修改
-      # REDIS_PASSWORD: your_redis_password
-    # 设置重启策略：除非手动停止，否则如果容器退出就会自动重启
     restart: unless-stopped
 
-  # MySQL 数据库服务
   db:
-    # 使用官方 MySQL 8.4.0 镜像
     image: mysql:8.4.0
-    # 设置 MySQL 的环境变量（用于初始化）
     environment:
-      MYSQL_ROOT_PASSWORD: 1989315788 # 设置 root 用户的密码（请务必修改为强密码！）
-      MYSQL_DATABASE: home # 容器启动时自动创建的数据库
-      MYSQL_USER: yqq # 容器启动时自动创建的用户
-      MYSQL_PASSWORD: 1989315788 # 上述用户的密码
-    # 数据卷挂载：将名为 'mysql_data' 的持久化卷挂载到容器内的数据库数据目录
-    # 目的是为了持久化存储数据库数据，即使容器被删除，数据也不会丢失
+      MYSQL_ROOT_PASSWORD: 1989315788 
+      MYSQL_DATABASE: home 
+      MYSQL_USER: yqq 
+      MYSQL_PASSWORD: 1989315788 
+
     volumes:
       - mysql_data:/var/lib/mysql
-    # 健康检查：定期执行命令检查数据库是否就绪
     healthcheck:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost'] # 检查命令
-      interval: 5s # 每 5 秒检查一次
-      timeout: 3s # 检查命令超时时间为 3 秒
-      retries: 10 # 连续失败 10 次才标记为不健康
-    # 将容器的 3306 端口映射到宿主机（方便宿主机工具如 Workbench 直接连接）
-    # 注意：在生产环境中，出于安全考虑，通常不会映射数据库端口到外网
+      interval: 5s 
+      timeout: 3s 
+      retries: 10 
+
     ports:
       - '3306:3306'
 
-  # Redis 缓存/数据库服务
   redis:
-    # 使用官方 Redis 最新稳定版镜像
     image: redis:7-alpine
-    # 设置重启策略
     restart: unless-stopped
-    # 如果您需要为 Redis 设置密码，请取消注释以下行并修改
-    # command: redis-server --requirepass your_redis_password
-    # 数据卷挂载：持久化 Redis 数据
     volumes:
       - redis_data:/data
 
-# 定义数据卷，用于持久化存储数据
 volumes:
-  # MySQL 数据卷
   mysql_data:
-  # Redis 数据卷
   redis_data:
