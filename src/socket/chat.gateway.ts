@@ -15,12 +15,10 @@ import { Queue } from 'bull';
 import { tokenType } from './type/type';
 
 // 后端 WebSocket 配置
-@WebSocketGateway(3001, {
+@WebSocketGateway({
+  // 不指定端口，使用与HTTP服务相同的端口
   transports: ['websocket'],
-  host: '0.0.0.0',
-  // 允许跨域
   cors: { origin: '*' },
-  ws: true,
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
