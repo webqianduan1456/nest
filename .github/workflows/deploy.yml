@@ -22,13 +22,24 @@ jobs:
       - name: Create oss.json
         run: |
           cat > config/oss.json <<EOF
-          { ... }
+             {
+               "OSS": {
+                   "accessKeyId": "${{ secrets.OSS_KEY_ID }}",
+                   "accessKeySecret": "${{ secrets.OSS_KEY_SECRET}}",
+                   "region": "oss-cn-fuzhou",
+                   "bucket": "nest-imges"
+                }
+             }
           EOF
 
       - name: Setup auth
         run: |
           cat > config/auth.json <<EOF
-          { ... }
+          {
+            "auth":{
+             "secret":"${{ secrets.AUTH }}"
+             }
+          }
           EOF
 
       - name: Setup SSH
