@@ -34,29 +34,31 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
           
-          # 🔑 添加主机密钥验证（修复关键错误）
+          # 使用Ed25519密钥文件名
+          echo "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
           ssh-keyscan -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SERVER_IP }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
       - name: Verify SSH connection
         run: |
-          # 测试连接
-          ssh -o ConnectTimeout=10 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo 'SSH连接成功'"
+          # 指定使用Ed25519密钥
+          ssh -i ~/.ssh/id_ed25519 -o ConnectTimeout=10 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "echo '连接成功'"
 
       - name: Sync code to server
         run: |
-          # 🚨 修复：使用secrets变量替换硬编码
-          rsync -avz --delete -e "ssh -p ${{ secrets.ALIYUN_SERVER_PORT }}" ./ ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:/path/to/your/app
+          # 使用secrets变量，指定Ed25519密钥
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }}" ./ ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:/path/to/your/app
 
       - name: Rebuild and restart Docker containers
         run: |
-          # 🚨 修复：使用secrets变量
-          ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /path/to/your/app && docker-compose down && docker-compose up -d --build"
+          # 使用secrets变量，指定Ed25519密钥
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /path/to/your/app && docker-compose down && docker-compose up -d --build"
 
       - name: Health check
         run: |
-          # 🚨 修复：使用secrets变量
-          ssh -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker ps && curl -I http://localhost:8889"
+          # 使用secrets变量，指定Ed25519密钥
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "docker ps && curl -I http://localhost:8889"
