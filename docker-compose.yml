@@ -30,7 +30,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost'] # 检查命令
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       interval: 5s 
       timeout: 3s 
       retries: 10 
