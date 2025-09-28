@@ -1,4 +1,4 @@
-import { UniappUserInfo } from '../Entity/uniapp/user/UserInfo.entity';
+import { UniappUserInfo } from '../UniappEntity/user/UserInfo.entity';
 import { DataSource } from 'typeorm';
 
 export const UniappUser = new DataSource({
