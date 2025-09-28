@@ -5,6 +5,8 @@ import * as compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // 启用信任代理（关键配置）
+  app.use('trust proxy', true);
   // 启用 CORS（所有域名、所有方法都允许）
   app.enableCors();
   // 限制请求次数
