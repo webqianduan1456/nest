@@ -9,7 +9,6 @@ export class RedisService implements OnModuleDestroy {
     this.client = new Redis({
       host: '47.118.17.138',
       port: 6379,
-      password: '1989315788',
       db: 0,
       connectTimeout: 10000,
       // 显式覆盖所有可能的默认值
