@@ -35,7 +35,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost','wget']
+      test: ['CMD', "CMD-SHELL",'mysqladmin', 'ping', '-h', 'localhost','wget']
       interval: 5s
       timeout: 3s
       retries: 10
