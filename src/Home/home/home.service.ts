@@ -66,15 +66,16 @@ export class HomeService {
         // 获取数据库数据
         SwiperImgAllMessage,
       ]);
+      console.log('OSS图片数量:', ossImages.length);
+      console.log('数据库记录数:', swiperData.length);
+      console.log('OSS图片列表:', ossImages);
+      console.log('数据库数据:', swiperData);
+
       const mergedData = swiperData.map((record, index) => ({
         id: record.id || index + 1,
         img_url: ossImages[index],
         img_message: record.img_message,
       }));
-      console.log('OSS图片数量:', ossImages.length);
-      console.log('数据库记录数:', swiperData.length);
-      console.log('OSS图片列表:', ossImages);
-      console.log('数据库数据:', swiperData);
       return mergedData;
     };
 
