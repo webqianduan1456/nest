@@ -26,8 +26,8 @@ jobs:
                "OSS": {
                    "accessKeyId": "${{ secrets.OSS_KEY_ID }}",
                    "accessKeySecret": "${{ secrets.OSS_KEY_SECRET}}",
-                   "region": "oss-cn-fuzhou",
-                   "bucket": "nest-imges"
+                   "region": "oss-cn-hangzhou",
+                   "bucket": "yqq-img"
                 }
              }
           EOF
