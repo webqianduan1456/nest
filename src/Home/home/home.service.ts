@@ -71,6 +71,10 @@ export class HomeService {
         img_url: ossImages[index],
         img_message: record.img_message,
       }));
+      console.log('OSS图片数量:', ossImages.length);
+      console.log('数据库记录数:', swiperData.length);
+      console.log('OSS图片列表:', ossImages);
+      console.log('数据库数据:', swiperData);
       return mergedData;
     };
 
