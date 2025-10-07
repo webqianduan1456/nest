@@ -14,7 +14,7 @@ export class RedisService implements OnModuleDestroy {
       // 显式覆盖所有可能的默认值
       maxRetriesPerRequest: 10,
       retryStrategy: (times) => {
-        return times >= 2 ? null : 500;
+        return times >= 2 ? null : 600;
       },
       enableOfflineQueue: false, // 禁用离线队列（避免堆积请求）
     });
