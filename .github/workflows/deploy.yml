@@ -59,9 +59,14 @@ jobs:
         run: |
           rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }}" ./ ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }}:/root/nest-app/
 
-      - name: Simple and Reliable Deploy
+      - name: Deploy with Docker Compose
         run: |
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "cd /root/nest-app/ && docker build -t nest-app ."
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "
+          cd /root/nest-app/ && 
+          docker-compose down &&
+          docker-compose build --no-cache &&
+          docker-compose up -d
+          "
      
       - name: Health check
         run: |
