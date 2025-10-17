@@ -50,10 +50,8 @@ export class AuthService {
     }
   }
 
-  // 移动端
-
   // 第二次进来返回加密token
-  login(user: { id: number; username: string }) {
+  login(user: { id: number; username: string; avatar?: string }) {
     const payload = {
       id: user.id,
       username: user.username,
@@ -62,6 +60,7 @@ export class AuthService {
       //生成Token
       access_token: this.jwtService.sign(payload),
       id: user.id,
+      avatar: user.avatar,
       username: user.username,
     };
   }

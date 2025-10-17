@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // src/oss/oss.service.ts
@@ -13,46 +14,66 @@ export class OssService {
     new Map();
 
   constructor(private readonly configService: ConfigService) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     this.client = new OSS({
       region: this.configService.get('OSS.region'),
-      accessKeyId: this.configService.get('OSS.accessKeyId'),
-      accessKeySecret: this.configService.get('OSS.accessKeySecret'),
+      accessKeyId: this.configService.get<string>('OSS.accessKeyId') ?? '',
+      accessKeySecret: this.configService.get('OSS.accessKeySecret') ?? '',
       bucket: this.configService.get('OSS.bucket'),
     });
   }
+  // 过滤文件
+  async FilterFile(FileName: string): Promise<OSS.ObjectMeta[]> {
+    const result = await this.client.list(
+      {
+        prefix: FileName,
+        'max-keys': '50',
+      },
+      {},
+    );
 
+    // 添加类型注解
+    const imageExtensions = ['.webp', '.jpg', '.jpeg', '.png', '.gif', '.svg'];
+    const images = (result.objects as OSS.ObjectMeta[]).filter(
+      (obj: OSS.ObjectMeta) =>
+        imageExtensions.some((ext) => obj.name.toLowerCase().endsWith(ext)),
+    );
+    return images;
+  }
+  //  返回图片地址
   async listImagesInFolder(folderPath: string): Promise<string[]> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      const result = await this.client.list({
-        prefix: folderPath, // 指定目录前缀
-        delimiter: '/', // 按目录分隔
-      });
-
-      // 过滤出图片文件（根据扩展名）
-      const imageExtensions = [
-        '.webp',
-        '.jpg',
-        '.jpeg',
-        '.png',
-        '.gif',
-        '.svg',
-      ];
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      const images = result.objects
-        .filter((obj: { name: string }) =>
-          imageExtensions.some((ext) => obj.name.toLowerCase().endsWith(ext)),
-        )
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        .map((obj) => this.getFileUrl(obj.name));
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return images;
+      return (await this.FilterFile(folderPath)).map((obj) =>
+        this.getFileUrl(String(obj.name)),
+      );
     } catch (error) {
       throw new Error(`Failed to list OSS files: ${error.message}`);
     }
   }
+  //  返回图片详细信息
 
+  // 返回图片详细信息
+  async getImageDetails(filename: string) {
+    try {
+      return (await this.FilterFile(filename)).map((obj) => ({
+        url: this.getFileUrl(String(obj.name)),
+        lastModified: obj.lastModified,
+        size: obj.size,
+        etag: obj.etag,
+        type: obj.type,
+        extension: obj.name.split('.').pop() ?? '',
+        sizeFormatted: this.formatFileSize(Number(obj.size)),
+      }));
+    } catch (error) {
+      throw new Error(`Failed to get OSS file details: ${error.message}`);
+    }
+  }
+
+  // 工具方法
+  private formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
   // 修改 getFileUrl 方法：添加缓存功能，设置签名有效期为 24 小时（86400 秒）
   private getFileUrl(filename: string): string {
     const now = Date.now();
@@ -62,7 +83,6 @@ export class OssService {
       return cacheEntry.url;
     }
     // 生成新的签名 URL，有效期 86400 秒（即 24 小时）
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const url = this.client.signatureUrl(filename, { expires: 86400 });
     this.signedUrlCache.set(filename, { url, expireAt: now + 86400 * 1000 });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

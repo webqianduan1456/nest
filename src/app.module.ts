@@ -34,6 +34,13 @@ import { BullModule } from '@nestjs/bull';
 import { UniAppHomeModule } from './Uniapp/uniapp-home/UniappHome.module';
 import { UniappUserModule } from './Uniapp/Uniapp-user/UniappUser.module';
 import { UniappUser } from './uniapp-db/user.datasource';
+import { UniappHome } from './uniapp-db/home.datasource';
+import { UniappCoach } from './uniapp-db/coach.datasource';
+import { UniappCoachModule } from './Uniapp/uniapp-coach/UniappCoach.module';
+import { UniappMyModule } from './Uniapp/uniapp-my/UniappMy.module';
+import { UniappShoppingMallModule } from './Uniapp/uniapp-shopping-mall/UniappShoppingMall.module';
+import { UniappShoppingMall } from './uniapp-db/UniappShoppingMall.datasource';
+import { UniappMy } from './uniapp-db/UniappMy.datasource';
 
 @Global()
 @Module({
@@ -130,6 +137,50 @@ import { UniappUser } from './uniapp-db/user.datasource';
         return UniappUser;
       },
     }),
+    // 连接uniapp中的UniappHome
+    TypeOrmModule.forRootAsync({
+      name: 'uniapp-home',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!UniappHome.isInitialized) {
+          await UniappHome.initialize();
+        }
+        return UniappHome;
+      },
+    }),
+    // 连接uniapp中的UniappCoach
+    TypeOrmModule.forRootAsync({
+      name: 'uniapp-coach',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!UniappCoach.isInitialized) {
+          await UniappCoach.initialize();
+        }
+        return UniappCoach;
+      },
+    }),
+    // 连接uniapp中的UniappShoppingMall
+    TypeOrmModule.forRootAsync({
+      name: 'uniapp-shopping-mall',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!UniappShoppingMall.isInitialized) {
+          await UniappShoppingMall.initialize();
+        }
+        return UniappShoppingMall;
+      },
+    }),
+    // 连接uniapp中的UniappMy
+    TypeOrmModule.forRootAsync({
+      name: 'uniapp-my',
+      useFactory: () => ({}),
+      dataSourceFactory: async () => {
+        if (!UniappMy.isInitialized) {
+          await UniappMy.initialize();
+        }
+        return UniappMy;
+      },
+    }),
     // 注册jwt
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
@@ -155,6 +206,9 @@ import { UniappUser } from './uniapp-db/user.datasource';
     // uniapp
     UniAppHomeModule,
     UniappUserModule,
+    UniappCoachModule,
+    UniappMyModule,
+    UniappShoppingMallModule,
   ],
   providers: [OssService],
   exports: [OssService, JwtModule],

@@ -57,7 +57,6 @@ export class HomeService {
     const SwiperImgAllMessage = this.userRepository
       .createQueryBuilder('swiper')
       .getMany();
-
     // 合并SwiperImgAllMessage数据库数据url
     const SwiperImgAllMessageMerge = async () => {
       const [ossImages, swiperData] = await Promise.all([
@@ -66,11 +65,9 @@ export class HomeService {
         // 获取数据库数据
         SwiperImgAllMessage,
       ]);
-      console.log('OSS图片列表:', ossImages);
-
       const mergedData = swiperData.map((record, index) => ({
         id: record.id || index + 1,
-        img_url: ossImages[index] || "没有数据",
+        img_url: ossImages[index],
         img_message: record.img_message,
       }));
       return mergedData;

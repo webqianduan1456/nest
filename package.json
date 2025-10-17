@@ -57,6 +57,7 @@
     "@nestjs/testing": "^11.0.1",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
+    "@types/ali-oss": "^6.16.11",
     "@types/bcrypt": "^5.0.2",
     "@types/bull": "^4.10.4",
     "@types/compression": "^1.8.0",

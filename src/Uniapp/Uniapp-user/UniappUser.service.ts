@@ -3,11 +3,14 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UniappUserInfo } from '../../UniappEntity/user/UserInfo.entity';
 import * as bcrypt from 'bcrypt';
+import { OssService } from 'src/OSS/oss';
 
 @Injectable()
 export class UniappUserService {
   constructor(
-    // 用户注册
+    // oss图片服务
+    private readonly ossService: OssService,
+    // 用户实例
     @InjectRepository(UniappUserInfo, 'uniapp-userinfo')
     private readonly UniappUserInfoRepository: Repository<UniappUserInfo>,
   ) {}
@@ -16,7 +19,7 @@ export class UniappUserService {
     // 检查用户是否已存在
     const UniappUserInfo =
       await this.UniappUserInfoRepository.createQueryBuilder('UserInfo')
-        .where('UserInfo.User = :User', { User: Body.User })
+        .where('UserInfo.UserName = :UserName', { UserName: Body.User })
         .andWhere('UserInfo.Password = :Password', {
           Password: Body.Password,
         })
@@ -26,7 +29,7 @@ export class UniappUserService {
     // 否则，密码转化为hash再插入新用户
     const hashPassword = await bcrypt.hash(Body.Password, 10);
     const newUser = await this.UniappUserInfoRepository.insert({
-      User: Body.User,
+      UserName: Body.User,
       Password: hashPassword,
       Phone: Body.Phone,
     });
@@ -45,20 +48,24 @@ export class UniappUserService {
     const user = await this.UniappUserInfoRepository.createQueryBuilder(
       'UserInfo',
     )
-      .where('UserInfo.User = :User', { User: Body.username })
+      .where('UserInfo.UserName = :UserName', { UserName: Body.username })
       .getOne();
+    // 获取用户头像
+    const oss = await this.ossService.listImagesInFolder(
+      `uniappimg/User/UserAvatar/${user?.id}.webp`,
+    );
 
     // 验证密码和用户名
     if (
-      !user?.User ||
+      !user?.UserName ||
       !(await bcrypt.compare(Body.userpassword, user.Password))
     ) {
       throw new HttpException('用户名或密码错误', HttpStatus.NOT_FOUND);
     } else {
       return {
         id: user.id,
-        username: user.User,
-        avatar: user.avatar,
+        username: user.UserName,
+        avatar: oss[0] || '',
         userpassword: user.Password,
       };
     }

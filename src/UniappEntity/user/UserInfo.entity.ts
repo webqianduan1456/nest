@@ -5,11 +5,13 @@ export class UniappUserInfo {
   @PrimaryGeneratedColumn()
   id?: number;
   @Column()
-  User: string;
+  UserName: string;
   @Column()
   Password: string;
   @Column()
   Phone: string;
   @Column()
   avatar?: string;
+  @Column()
+  sign: number;
 }

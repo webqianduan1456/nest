@@ -17,10 +17,6 @@ async function bootstrap() {
     rateLimit({
       windowMs: 15 * 60 * 1000,
       max: 100,
-      // 关键：配置信任代理
-      validate: {
-        trustProxy: true,
-      },
       // 或者禁用 X-Forwarded-For 验证
       skip: (req) => {
         return !!req.headers['x-forwarded-for'];

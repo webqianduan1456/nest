@@ -11,7 +11,6 @@ export class AuthController {
   //  第二层
   @Post('UniappLogin')
   Login(@Request() req: { user: { id: number; username: string } }) {
-    console.log('uniapp', req?.user?.id);
     // 首次登录生成Token
     return this.authService.login(req.user);
   }
@@ -23,8 +22,6 @@ export class AuthController {
   //  第二层
   @Post('login')
   login(@Request() req: { user: { id: number; username: string } }) {
-    console.log('pc', req?.user?.id);
-
     // 首次登录生成Token
     return this.authService.login(req.user);
   }
