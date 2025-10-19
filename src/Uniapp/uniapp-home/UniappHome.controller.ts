@@ -24,8 +24,8 @@ export class UniAppHomeController {
     }
   }
   // 获取广告信息
-  @Get('CommunityAdvertising')
-  CommunityAdvertising(@Param('UserId') UserId: number = 3) {
+  @Get('CommunityAdvertising/:UserId')
+  CommunityAdvertising(@Param('UserId') UserId: number) {
     if (UserId && UserId !== null && UserId > 0) {
       return this.UniAppHomeServices.getCommunityAdvertising(UserId);
     } else {
