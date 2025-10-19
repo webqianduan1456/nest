@@ -1,15 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { rateLimit } from 'express-rate-limit';
+import type { Express } from 'express';
 import * as compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // ✅ 正确的信任代理配置
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const server = app.getHttpAdapter().getInstance();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-  server.set('trust proxy', true);
+  // 正确配置信任代理
+  const httpAdapter = app.getHttpAdapter();
+  const instance = httpAdapter.getInstance() as Express;
+  instance.set('trust proxy', 1);
   // 启用 CORS（所有域名、所有方法都允许）
   app.enableCors();
   // 限制请求次数
@@ -27,4 +28,4 @@ async function bootstrap() {
   app.use(compression.default());
   await app.listen(3000, '0.0.0.0');
 }
-bootstrap();
+void bootstrap();
