@@ -15,7 +15,7 @@ export class UniAppHomeController {
     return this.UniAppHomeServices.getCommunityList();
   }
   // 获取全部用户发布的动态信息
-  @Get('CommunityDynamic')
+  @Get('CommunityDynamic/:UserId')
   getCommunityDynamic(@Param('UserId') UserId: number) {
     if (UserId && UserId !== null && UserId > 0) {
       return this.UniAppHomeServices.getCommunityDynamic(UserId);
