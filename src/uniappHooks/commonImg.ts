@@ -73,7 +73,12 @@ const dataMeger = async (
       return item;
     },
   );
-  const Meger = [...dataChildMegerImgChild, ...dataChildMegerImg];
+  const Meger = [
+    {
+      img: dataChildMegerImg,
+      imgChild: dataChildMegerImgChild,
+    },
+  ];
   return Meger;
 };
 
