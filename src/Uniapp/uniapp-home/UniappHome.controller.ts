@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, Param } from '@nestjs/common';
+import { Controller, Get, HttpException, Query } from '@nestjs/common';
 import { UniAppHomeService } from './UniappHome.service';
 
 @Controller('UniAppHome')
@@ -15,8 +15,8 @@ export class UniAppHomeController {
     return this.UniAppHomeServices.getCommunityList();
   }
   // 获取全部用户发布的动态信息
-  @Get('CommunityDynamic/:UserId')
-  getCommunityDynamic(@Param('UserId') UserId: number) {
+  @Get('CommunityDynamic')
+  getCommunityDynamic(@Query('UserId') UserId: number) {
     if (UserId && UserId !== null && UserId > 0) {
       return this.UniAppHomeServices.getCommunityDynamic(UserId);
     } else {
@@ -24,8 +24,8 @@ export class UniAppHomeController {
     }
   }
   // 获取广告信息
-  @Get('CommunityAdvertising/:UserId')
-  CommunityAdvertising(@Param('UserId') UserId: number) {
+  @Get('CommunityAdvertising')
+  CommunityAdvertising(@Query('UserId') UserId: number) {
     if (UserId && UserId !== null && UserId > 0) {
       return this.UniAppHomeServices.getCommunityAdvertising(UserId);
     } else {
