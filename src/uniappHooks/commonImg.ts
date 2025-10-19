@@ -74,8 +74,8 @@ const dataMeger = async (
     },
   );
   const Meger = {
-    Img: dataChildMegerImg[0],
-    ImgChild: dataChildMegerImgChild[0],
+    Img: Object.assign({}, dataChildMegerImg),
+    ImgChild: Object.assign({}, dataChildMegerImgChild),
   };
 
   return Meger;
