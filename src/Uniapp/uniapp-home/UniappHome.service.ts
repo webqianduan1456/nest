@@ -339,9 +339,9 @@ export class UniAppHomeService {
               RecommendUserName: user.UserName,
               RecommendUserAvatar: UserAvatarImg,
               RecommendContent: RecommendContent[index],
-              RecommendIcon: item.CategoryId === 2 ? AdvertisingIcon : '',
-              AdletImg: item.AdletTitle ? LittleAdvertisingIcon : '',
-              AdletRightIcon: JoinPractice,
+              RecommendIcon: item.CategoryId === 2 ? AdvertisingIcon[0] : '',
+              AdletImg: item.AdletTitle ? LittleAdvertisingIcon[0] : '',
+              AdletRightIcon: JoinPractice[0],
             };
           }
           return item; // 如果没有匹配的用户，返回原项目
