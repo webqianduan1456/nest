@@ -337,7 +337,7 @@ export class UniAppHomeService {
             return {
               ...item,
               RecommendUserName: user.UserName,
-              RecommendUserAvatar: UserAvatarImg【,
+              RecommendUserAvatar: UserAvatarImg[0],
               RecommendContent: RecommendContent[index],
               RecommendIcon: item.CategoryId === 2 ? AdvertisingIcon[0] : '',
               AdletImg: item.AdletTitle ? LittleAdvertisingIcon[0] : '',
@@ -497,7 +497,7 @@ export class UniAppHomeService {
     return await CourseSelectChoicenesMerge();
   }
 
-  // 获取自定义训练计划
+  // 获取自定义训练计划数据
   async PlanCustom() {
     // 获取数据
     const PlanCustomData =
@@ -522,7 +522,7 @@ export class UniAppHomeService {
     return await PlanCustomDataMerge();
   }
 
-  // 获取会员训练计划
+  // 获取会员训练计划数据
   async getPlanMember() {
     const PlanMemberData =
       this.PlanMemberRepository.createQueryBuilder('PlanMember').getMany();
