@@ -461,7 +461,7 @@ export class UniAppHomeService {
               `uniappimg/Home/Course/CourseContent/choiceness/${item.SelectChoicenesId}.webp`,
             ),
           ),
-        ).then((results) => results.flat()),
+        ),
       ]);
       // 组合2
       const processedData = await Promise.all(
@@ -640,7 +640,7 @@ export class UniAppHomeService {
           );
         }),
       ]);
-      const newOssImg = await Promise.all(OssImg);
+      const newOssImg = await Promise.all(OssImg).then((res) => res.flat());
       return data.map((item, index) => ({
         ...item,
         MedalContent: newOssImg[index],
