@@ -497,7 +497,7 @@ export class UniAppHomeService {
     return await CourseSelectChoicenesMerge();
   }
 
-  // 获取自定义训练计划数据
+  // 获取自定义训练计划
   async PlanCustom() {
     // 获取数据
     const PlanCustomData =
