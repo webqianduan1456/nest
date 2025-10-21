@@ -538,7 +538,7 @@ export class UniAppHomeService {
           );
         }),
       ]);
-      const newOssImg = await Promise.all(OssImg);
+      const newOssImg = await Promise.all(OssImg).then((res) => res.flat());
       return data.map((item, index) => ({
         ...item,
         Img: newOssImg[index],
