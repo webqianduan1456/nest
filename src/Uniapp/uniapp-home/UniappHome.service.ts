@@ -427,7 +427,7 @@ export class UniAppHomeService {
         }),
       ]);
       // 解构promise
-      const deconstruction = await Promise.all(Img);
+      const deconstruction = await Promise.all(Img).then((res) => res.flat());
       return CourseSelectDatas.map((item, index) => ({
         ...item,
         SelectIcon: deconstruction[index],
