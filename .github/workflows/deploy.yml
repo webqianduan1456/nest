@@ -64,8 +64,7 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "
           cd /root/nest-app/ && 
           docker-compose down &&
-          docker-compose build --no-cache &&
-          docker-compose up -d
+          docker-compose restart
           "
      
       - name: Health check
