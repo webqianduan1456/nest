@@ -565,7 +565,7 @@ export class UniAppHomeService {
           );
         }),
       ]);
-      const newOssImg = await Promise.all(OssImg);
+      const newOssImg = await Promise.all(OssImg).then((res) => res.flat());
       return data.map((item, index) => ({
         ...item,
         PlanSelectImg: newOssImg[index],
@@ -593,7 +593,7 @@ export class UniAppHomeService {
           );
         }),
       ]);
-      const newOssImg = await Promise.all(OssImg);
+      const newOssImg = await Promise.all(OssImg).then((res) => res.flat());
       const newData = data.map((item, index) => ({
         ...item,
         MedalNavigationIcon: newOssImg[index],
@@ -666,7 +666,7 @@ export class UniAppHomeService {
           );
         }),
       ]);
-      const newOssImg = await Promise.all(OssImg);
+      const newOssImg = await Promise.all(OssImg).then((res) => res.flat());
       return data.map((item, index) => ({
         ...item,
         GameNavigateImg: newOssImg[index],
