@@ -337,7 +337,7 @@ export class UniAppHomeService {
             return {
               ...item,
               RecommendUserName: user.UserName,
-              RecommendUserAvatar: UserAvatarImg,
+              RecommendUserAvatar: UserAvatarImg【,
               RecommendContent: RecommendContent[index],
               RecommendIcon: item.CategoryId === 2 ? AdvertisingIcon[0] : '',
               AdletImg: item.AdletTitle ? LittleAdvertisingIcon[0] : '',
