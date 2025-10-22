@@ -13,5 +13,9 @@ export class UniappUserInfo {
   @Column()
   avatar?: string;
   @Column()
+  fans: number;
+  @Column()
+  attention: number;
+  @Column()
   sign: number;
 }

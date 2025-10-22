@@ -10,7 +10,12 @@ export class AuthController {
   @UseGuards(AuthGuard('uniapp-local'))
   //  第二层
   @Post('UniappLogin')
-  Login(@Request() req: { user: { id: number; username: string } }) {
+  Login(
+    @Request()
+    req: {
+      user: { id: number; username: string; fans: number; attention: number };
+    },
+  ) {
     // 首次登录生成Token
     return this.authService.login(req.user);
   }
@@ -21,7 +26,12 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   //  第二层
   @Post('login')
-  login(@Request() req: { user: { id: number; username: string } }) {
+  login(
+    @Request()
+    req: {
+      user: { id: number; username: string; fans: number; attention: number };
+    },
+  ) {
     // 首次登录生成Token
     return this.authService.login(req.user);
   }

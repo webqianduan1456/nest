@@ -18,6 +18,8 @@ export class CommunityUserDynamicTitle {
   @Column()
   DynamicTime: Date;
   @Column()
+  fans: number;
+  @Column()
   DynamicUserId: number;
   // 外键CommunityUserDynamicExerciseLog外表
   @OneToMany(

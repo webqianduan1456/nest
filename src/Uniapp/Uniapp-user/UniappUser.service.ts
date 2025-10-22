@@ -67,6 +67,8 @@ export class UniappUserService {
         username: user.UserName,
         avatar: oss[0] || '',
         userpassword: user.Password,
+        fans: user.fans,
+        attention: user.attention,
       };
     }
   }

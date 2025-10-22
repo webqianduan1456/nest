@@ -51,7 +51,13 @@ export class AuthService {
   }
 
   // 第二次进来返回加密token
-  login(user: { id: number; username: string; avatar?: string }) {
+  login(user: {
+    id: number;
+    username: string;
+    avatar?: string;
+    fans: number;
+    attention: number;
+  }) {
     const payload = {
       id: user.id,
       username: user.username,
@@ -62,6 +68,8 @@ export class AuthService {
       id: user.id,
       avatar: user.avatar,
       username: user.username,
+      fans: user.fans,
+      attention: user.attention,
     };
   }
 }
