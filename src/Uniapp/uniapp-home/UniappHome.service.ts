@@ -248,13 +248,21 @@ export class UniAppHomeService {
     );
     // 返回组合数据
     const NewData = CommunityUserDynamicTitleData.map((item) => {
-      return {
-        ...item,
-        DynamicImg: dataMegerResult,
+      const dispose = async () => {
+        const avatarImg = await this.ossService.listImagesInFolder(
+          `uniappimg/User/UserAvatar/${item.DynamicId}.webp`,
+        );
+        return {
+          ...item,
+          DynamicImg: dataMegerResult,
+          avatar: avatarImg[0],
+        };
       };
-    });
 
-    return NewData;
+      return dispose();
+    });
+    const n = await Promise.all(NewData);
+    return n;
   }
   // 获取广告信息
   async getCommunityAdvertising(UserId: number) {
