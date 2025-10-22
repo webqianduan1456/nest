@@ -22,7 +22,7 @@ export class CommunityUserDynamicAuthorContentSharing {
   @Column()
   Content5: string;
   @Column()
-  AuthorContentSharingTime: string;
+  AuthorContentSharingTime: Date;
   @Column()
   AuthorContentSharingId: number;
   // 对应CommunityUserDynamicTitle主表

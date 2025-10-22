@@ -10,6 +10,8 @@ export class CommunityUserDynamicTitle {
   @Column()
   DynamicUserName: string;
   @Column()
+  avatar: string;
+  @Column()
   DynamicUserDesignation: string;
   @Column()
   DynamicAuthorCommentTitle: string;

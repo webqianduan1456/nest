@@ -137,17 +137,11 @@ export class UniAppHomeService {
     return dataMeger();
   }
   // 获取全部用户发布的动态信息
-  async getCommunityDynamic(UserId: number) {
-    const data =
+  async getCommunityDynamic() {
+    const CommunityUserDynamicTitleData =
       await this.CommunityUserDynamicTitleRepository.createQueryBuilder(
         'CommunityUserDynamicTitleRepository',
       )
-        .where(
-          'CommunityUserDynamicTitleRepository.DynamicUserId = :DynamicUserId',
-          {
-            DynamicUserId: UserId,
-          },
-        )
         .leftJoinAndSelect(
           'CommunityUserDynamicTitleRepository.DynamicExerciseLog',
           'DynamicExerciseLogAlias',
@@ -159,56 +153,78 @@ export class UniAppHomeService {
           'DynamicEvaluateAlias',
           'DATE(CommunityUserDynamicTitleRepository.DynamicTime) = DATE(DynamicEvaluateAlias.CommentTime)',
         )
+        .leftJoinAndSelect(
+          'CommunityUserDynamicTitleRepository.DynamicAuthorContentSharing',
+          'DynamicAuthorContentSharing',
+        )
         .orderBy('CommunityUserDynamicTitleRepository.DynamicId', 'ASC')
         .getMany();
     // 合并作者内容分享(图片或视频)
     const AuthorContentSharing =
       await this.CommunityUserDynamicAuthorContentSharingRepository.createQueryBuilder(
         'CommunityUserDynamicAuthorContentSharingRepository',
-      )
-        .where(
-          'CommunityUserDynamicAuthorContentSharingRepository.AuthorContentSharingId = :AuthorContentSharingId',
-          { AuthorContentSharingId: UserId },
-        )
-        .getMany();
+      ).getMany();
     // 作者内容分享合并图片
     const AuthorContentSharingMeger = async () => {
-      const [data, ossTime] = await Promise.all([
-        AuthorContentSharing,
-        // 获取图片数据详细信息
-        this.ossService.getImageDetails(
-          `uniappimg/Home/CommunityUserDynamic/Img/${UserId}_`,
-        ),
-      ]);
       // 获取与阿里云服务器OSS图片相同时间的日期
-      const NewAuthorContentMeger = data.map((item) => {
-        // 查询相同时间
-        const NewOssTime = ossTime.filter((it) => {
-          if (
-            dayjs(String(it.lastModified)).format('YYYY-MM-DD') ===
-            dayjs(item.AuthorContentSharingTime).format('YYYY-MM-DD')
-          ) {
-            return it;
-          }
-        });
-        // 按照大到小时间排序
-        NewOssTime.sort((a, b) => {
-          return Number(b.lastModified) - Number(a.lastModified);
-        });
-        // 合并数据
-        item.Content1 = NewOssTime[0]?.url || '';
-        item.Content2 = NewOssTime[1]?.url || '';
-        item.Content3 = NewOssTime[2]?.url || '';
-        item.Content4 = NewOssTime[3]?.url || '';
-        item.Content5 = NewOssTime[4]?.url || '';
-        return item;
-      });
+      const NewAuthorContentMerger = await Promise.all(
+        AuthorContentSharing.map(async (item) => {
+          try {
+            const Img = this.ossService.getImageDetails(
+              `uniappimg/Home/CommunityUserDynamic/Img/${item.AuthorContentSharingId}`,
+            );
+            const ossImg = await Img;
 
-      return NewAuthorContentMeger;
+            // 查询相同时间
+            const NewOssImg = ossImg.filter((it) => {
+              if (
+                dayjs(String(it.lastModified)).format('YYYY-MM-DD') ===
+                dayjs(item.AuthorContentSharingTime).format('YYYY-MM-DD')
+              ) {
+                return it;
+              }
+            });
+
+            // 按照大到小时间排序
+            NewOssImg.sort((a, b) => {
+              return Number(b.lastModified) - Number(a.lastModified);
+            });
+
+            // 合并数据
+            return {
+              ...item,
+              Content1: NewOssImg[0]?.url || '',
+              Content2: NewOssImg[1]?.url || '',
+              Content3: NewOssImg[2]?.url || '',
+              Content4: NewOssImg[3]?.url || '',
+              Content5: NewOssImg[4]?.url || '',
+            };
+          } catch (error) {
+            console.error(
+              `处理 AuthorContentSharingId ${item.AuthorContentSharingId} 时出错:`,
+              error,
+            );
+            // 出错时返回原始数据
+            return {
+              ...item,
+              Content1: '',
+              Content2: '',
+              Content3: '',
+              Content4: '',
+              Content5: '',
+            };
+          }
+        }),
+      );
+      return NewAuthorContentMerger;
     };
     const NewAuthorData = await AuthorContentSharingMeger();
+    // 修改数据库数据
+    await this.CommunityUserDynamicAuthorContentSharingRepository.save(
+      NewAuthorData,
+    );
     // 循环子排序
-    data.forEach((item) => {
+    CommunityUserDynamicTitleData.forEach((item) => {
       // 运动日志按 UserId 升序
       if (item.DynamicExerciseLog?.length) {
         item.DynamicExerciseLog.sort(
@@ -231,11 +247,10 @@ export class UniAppHomeService {
       this.ossService,
     );
     // 返回组合数据
-    const NewData = data.map((item) => {
+    const NewData = CommunityUserDynamicTitleData.map((item) => {
       return {
         ...item,
         DynamicImg: dataMegerResult,
-        DynamicAuthorContentSharing: NewAuthorData,
       };
     });
 

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // src/oss/oss.service.ts
 import { Injectable } from '@nestjs/common';
@@ -33,9 +31,8 @@ export class OssService {
 
     // 添加类型注解
     const imageExtensions = ['.webp', '.jpg', '.jpeg', '.png', '.gif', '.svg'];
-    const images = (result.objects as OSS.ObjectMeta[]).filter(
-      (obj: OSS.ObjectMeta) =>
-        imageExtensions.some((ext) => obj.name.toLowerCase().endsWith(ext)),
+    const images = result.objects.filter((obj: OSS.ObjectMeta) =>
+      imageExtensions.some((ext) => obj.name.toLowerCase().endsWith(ext)),
     );
     return images;
   }
@@ -61,6 +58,7 @@ export class OssService {
         etag: obj.etag,
         type: obj.type,
         extension: obj.name.split('.').pop() ?? '',
+        name: obj.name.split('.').slice(0, -1).join('.'),
         sizeFormatted: this.formatFileSize(Number(obj.size)),
       }));
     } catch (error) {
@@ -85,7 +83,6 @@ export class OssService {
     // 生成新的签名 URL，有效期 86400 秒（即 24 小时）
     const url = this.client.signatureUrl(filename, { expires: 86400 });
     this.signedUrlCache.set(filename, { url, expireAt: now + 86400 * 1000 });
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return url;
   }
 }

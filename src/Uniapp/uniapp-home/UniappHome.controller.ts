@@ -16,12 +16,8 @@ export class UniAppHomeController {
   }
   // 获取全部用户发布的动态信息
   @Get('CommunityDynamic')
-  getCommunityDynamic(@Query('UserId') UserId: number) {
-    if (UserId && UserId !== null && UserId > 0) {
-      return this.UniAppHomeServices.getCommunityDynamic(UserId);
-    } else {
-      throw new HttpException(' 用户ID不能为空', 400);
-    }
+  getCommunityDynamic() {
+    return this.UniAppHomeServices.getCommunityDynamic();
   }
   // 获取广告信息
   @Get('CommunityAdvertising')
