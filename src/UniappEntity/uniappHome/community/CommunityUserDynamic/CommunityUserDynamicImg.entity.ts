@@ -16,4 +16,10 @@ export class CommunityUserDynamicImg {
   MessageImg: string;
   @Column()
   StarImg: string;
+  @Column()
+  collectImg: string;
+  @Column()
+  runImg: string;
+  @Column()
+  medalImg: string;
 }

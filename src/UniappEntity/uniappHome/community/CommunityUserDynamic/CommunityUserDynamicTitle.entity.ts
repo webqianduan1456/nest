@@ -22,6 +22,12 @@ export class CommunityUserDynamicTitle {
   @Column()
   fans: number;
   @Column()
+  Vip1: string;
+  @Column()
+  Vip2: string;
+  @Column()
+  Vip3: string;
+  @Column()
   DynamicUserId: number;
   // 外键CommunityUserDynamicExerciseLog外表
   @OneToMany(

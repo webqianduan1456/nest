@@ -12,6 +12,9 @@ export interface CommunityUserDynamicImg {
   BroadcastImg?: string;
   MessageImg?: string;
   StarImg?: string;
+  collectImg: string;
+  runImg: string;
+  medalImg: string;
 }
 
 // 定义 CommunityUserDynamicImgChild 类型
@@ -29,6 +32,16 @@ const dataMeger = async (
   ChildImg: Repository<any>,
   oss: OssService,
 ) => {
+  const OssImgName = [
+    'share',
+    'more1',
+    'megaphone',
+    'chat',
+    'heart',
+    'collect',
+    'run',
+    'medal',
+  ];
   const [
     CommunityUserDynamicImgData,
     CommunityUserDynamicImgChildData,
@@ -45,23 +58,27 @@ const dataMeger = async (
       'CommunityUserDynamicImgChild',
     ).getMany()) as CommunityUserDynamicImgChild[],
     // 获取 CommunityUserDynamicImg 图片
-    oss.listImagesInFolder('uniappimg/CommonImg/'),
+    OssImgName.map((item) => {
+      return oss.listImagesInFolder(`uniappimg/CommonImg/${item}.svg`);
+    }),
     // 获取头像旁特殊标记
     oss.listImagesInFolder('uniappimg/User/UserAvatar/3.svg'),
     // 获取各种不同鼓舞评论图片
     oss.listImagesInFolder('uniappimg/Home/CommunityUserDynamic/Icon/'),
   ]);
-  const dataChildMegerImgChild = CommunityUserDynamicImgData.map(
-    (item, index) => {
-      item.AvatarImg = AVatarImg[0];
-      item.ShareImg = OssImg[index + 16];
-      item.MoreImg = OssImg[index + 12];
-      item.BroadcastImg = OssImg[index + 11];
-      item.MessageImg = OssImg[index + 6];
-      item.StarImg = OssImg[index + 8];
-      return item;
-    },
-  );
+  const OssImgs = await Promise.all(OssImg).then((res) => res.flat());
+  const dataChildMegerImgChild = CommunityUserDynamicImgData.map((item) => {
+    item.AvatarImg = AVatarImg[0];
+    item.ShareImg = OssImgs[0];
+    item.MoreImg = OssImgs[1];
+    item.BroadcastImg = OssImgs[2];
+    item.MessageImg = OssImgs[3];
+    item.StarImg = OssImgs[4];
+    item.collectImg = OssImgs[5];
+    item.runImg = OssImgs[6];
+    item.medalImg = OssImgs[7];
+    return item;
+  });
   const dataChildMegerImg = CommunityUserDynamicImgChildData.map(
     (item, index) => {
       item.ImgOne = OssImgChild[index];
@@ -69,7 +86,7 @@ const dataMeger = async (
       item.ImgThree = OssImgChild[index + 2];
       item.ImgFour = OssImgChild[index + 3];
       item.ImgFive = OssImgChild[index + 4];
-      item.ImgMore = OssImg[index + 12];
+      item.ImgMore = OssImgs[0];
       return item;
     },
   );

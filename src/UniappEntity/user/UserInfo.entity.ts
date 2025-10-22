@@ -17,5 +17,11 @@ export class UniappUserInfo {
   @Column()
   attention: number;
   @Column()
+  Vip1: string;
+  @Column()
+  Vip2: string;
+  @Column()
+  Vip3: string;
+  @Column()
   sign: number;
 }

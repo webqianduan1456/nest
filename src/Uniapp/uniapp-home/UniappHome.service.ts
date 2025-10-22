@@ -159,6 +159,26 @@ export class UniAppHomeService {
         )
         .orderBy('CommunityUserDynamicTitleRepository.DynamicId', 'ASC')
         .getMany();
+    // Vip合并
+    const Vip = async () => {
+      //  合并用户vip
+      const UniappUserInfoData =
+        await this.UniappUserInfoRepository.createQueryBuilder(
+          'UniappUserInfo',
+        ).getMany();
+      // 获取Vip的sVg
+      const OssImgVip =
+        await this.ossService.listImagesInFolder(`uniappimg/User/Vip/`);
+
+      return UniappUserInfoData.map((Info) => ({
+        ...Info,
+        Vip1: OssImgVip[0],
+        Vip2: OssImgVip[1],
+        Vip3: OssImgVip[2],
+      }));
+    };
+    const newVip = await Vip();
+    await this.UniappUserInfoRepository.save(newVip);
     // 合并作者内容分享(图片或视频)
     const AuthorContentSharing =
       await this.CommunityUserDynamicAuthorContentSharingRepository.createQueryBuilder(
@@ -252,15 +272,25 @@ export class UniAppHomeService {
         const avatarImg = await this.ossService.listImagesInFolder(
           `uniappimg/User/UserAvatar/${item.DynamicId}.webp`,
         );
+        const UniappUserInfoData =
+          await this.UniappUserInfoRepository.createQueryBuilder(
+            'UniappUserInfo',
+          )
+            .where('UniappUserInfo.id = :id', { id: item.DynamicUserId })
+            .getMany();
         return {
           ...item,
           DynamicImg: dataMegerResult,
           avatar: avatarImg[0],
+          Vip1: item.Vip1 == 'true' ? UniappUserInfoData[0].Vip1 : '',
+          Vip2: item.Vip2 == 'true' ? UniappUserInfoData[0].Vip2 : '',
+          Vip3: item.Vip3 == 'true' ? UniappUserInfoData[0].Vip3 : '',
         };
       };
 
       return dispose();
     });
+
     const n = await Promise.all(NewData);
     return n;
   }
