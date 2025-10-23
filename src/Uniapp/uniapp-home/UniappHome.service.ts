@@ -358,8 +358,9 @@ export class UniAppHomeService {
 
     // 合并推荐数据与图片
     const RecommendMeger = async () => {
+      //合并数据
       const result = await Promise.all(
-        RecommendRepository.map(async (item, index) => {
+        RecommendRepository.map(async (item) => {
           const user = UserInfo.find((it) => item.UserId === it.id);
           if (user) {
             // 生成随机数并选择
@@ -369,10 +370,6 @@ export class UniAppHomeService {
             // 异步获取图片
             const UserAvatarImg = await this.ossService.listImagesInFolder(
               `uniappimg/User/UserAvatar/${user.id}.webp`,
-            );
-            // 获取RecommendContent图片或视频内容
-            const RecommendContent = await this.ossService.listImagesInFolder(
-              `uniappimg/Home/Recommend/RecommendContent/DefaultContent/${index}.webp`,
             );
             // 获取广告小图标
             const AdvertisingIcon = await this.ossService.listImagesInFolder(
@@ -387,11 +384,11 @@ export class UniAppHomeService {
             const JoinPractice = await this.ossService.listImagesInFolder(
               `uniappimg/CommonImg/join.svg`,
             );
+
             return {
               ...item,
               RecommendUserName: user.UserName,
               RecommendUserAvatar: UserAvatarImg[0],
-              RecommendContent: RecommendContent[index],
               RecommendIcon: item.CategoryId === 2 ? AdvertisingIcon[0] : '',
               AdletImg: item.AdletTitle ? LittleAdvertisingIcon[0] : '',
               AdletRightIcon: JoinPractice[0],
@@ -400,7 +397,24 @@ export class UniAppHomeService {
           return item; // 如果没有匹配的用户，返回原项目
         }),
       );
-      return result;
+      // 获取RecommendContent图片或视频内容
+      const processedResult = await Promise.all(
+        result.map(async (item) => {
+          return await this.ossService.listImagesInFolder(
+            `uniappimg/Home/Recommend/RecommendContent/DefaultContent/${item.RecommendId}.webp`,
+          );
+        }),
+      );
+
+      // 将二维数组扁平化成一维数组
+      const singleArray = processedResult.flat();
+
+      return result.map((item, index) => {
+        return {
+          ...item,
+          RecommendContent: singleArray[index],
+        };
+      });
     };
     return await RecommendMeger();
   }
