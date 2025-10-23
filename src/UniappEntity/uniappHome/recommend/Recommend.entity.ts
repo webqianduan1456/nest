@@ -29,5 +29,5 @@ export class Recommend {
   @Column()
   CategoryId: number;
   @Column()
-  UserId: number;
+  UserSign: string;
 }
