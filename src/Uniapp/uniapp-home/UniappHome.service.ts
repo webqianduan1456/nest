@@ -563,8 +563,7 @@ export class UniAppHomeService {
     };
     return await CourseSelectChoicenesMerge();
   }
-
-  // 获取自定义训练计划
+  // 获取自定义训练
   async PlanCustom() {
     // 获取数据
     const PlanCustomData =
@@ -588,7 +587,6 @@ export class UniAppHomeService {
     };
     return await PlanCustomDataMerge();
   }
-
   // 获取会员训练计划数据
   async getPlanMember() {
     const PlanMemberData =
