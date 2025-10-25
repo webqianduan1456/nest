@@ -115,34 +115,12 @@ jobs:
             
             echo '部署完成!'
           "
-
       - name: Health check
         run: |
-          echo "进行健康检查..."
           ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.ALIYUN_SERVER_PORT }} ${{ secrets.ALIYUN_SSH_USER }}@${{ secrets.ALIYUN_SERVER_IP }} "
-            echo '=== Docker容器状态 ==='
-            docker ps
-            
-            echo '=== 应用健康检查 ==='
-            max_attempts=10
-            attempt=1
-            while [ \$attempt -le \$max_attempts ]; do
-              if curl -f http://localhost:8889/health 2>/dev/null; then
-                echo '应用健康检查通过!'
-                break
-              else
-                echo \"尝试 \$attempt/\$max_attempts: 应用尚未就绪，等待10秒...\"
-                sleep 10
-                attempt=\$((attempt + 1))
-              fi
-            done
-            
-            if [ \$attempt -gt \$max_attempts ]; then
-              echo '健康检查失败!'
-              exit 1
-            fi
+          timeout 120s bash -c 'until curl -f http://localhost:8889/health; do sleep 10; done'
+          echo '健康检查通过!'
           "
-
       - name: Deployment success
         if: success()
         run: |
