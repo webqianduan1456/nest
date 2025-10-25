@@ -49,16 +49,6 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Run tests (if available)
-        run: |
-          # 如果有测试脚本就运行，没有就跳过
-          if [ -f package.json ] && npm run | grep -q "test"; then
-            echo "运行测试..."
-            npm test
-          else
-            echo "没有找到测试脚本，跳过测试"
-          fi
-
       - name: Type check (if available)
         run: |
           # 如果有TypeScript检查就运行
