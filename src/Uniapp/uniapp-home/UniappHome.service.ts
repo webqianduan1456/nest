@@ -528,7 +528,7 @@ export class UniAppHomeService {
               `uniappimg/Home/Course/CourseContent/choiceness/${item.SelectChoicenesId}.webp`,
             ),
           ),
-        ),
+        ).then((res) => res.flat()),
       ]);
       // 组合2
       const processedData = await Promise.all(
