@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { PlanSelect } from './PlanSelect.entity';
 
 @Entity('PlanMember')
 export class PlanMember {
@@ -7,7 +14,9 @@ export class PlanMember {
   @Column()
   sign: string;
   @Column()
-  Img: string;
-  @Column()
   SignId: number;
+  // 对应PlanSelect主表
+  @OneToOne(() => PlanSelect, (PlanSelect) => PlanSelect.PlanSelectSign)
+  @JoinColumn({ name: 'SignId' })
+  PlanMemberSign: PlanSelect;
 }

@@ -58,11 +58,6 @@ export class UniAppHomeController {
   async getPlanCustom() {
     return this.UniAppHomeServices.PlanCustom();
   }
-  // 获取会员训练计划
-  @Get('PlanMember')
-  async getPlanMember() {
-    return this.UniAppHomeServices.getPlanMember();
-  }
 
   // 获取所有训练内容
   @Get('PlanSelect')

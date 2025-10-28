@@ -18,7 +18,6 @@ import { CourseNavigate } from '../../UniappEntity/uniappHome/Course/CourseNavig
 import { CourseSelect } from '../../UniappEntity/uniappHome/Course/CourseSelect.entity';
 import { CourseSelectChoicenes } from '../../UniappEntity/uniappHome/Course/CourseSelectChoicenes.entity';
 import { PlanCustom } from '../../UniappEntity/uniappHome/Plan/PlanCustom.entity';
-import { PlanMember } from '../../UniappEntity/uniappHome/Plan/PlanMember.entity';
 import { PlanSelect } from '../../UniappEntity/uniappHome/Plan/PlanSelect.entity';
 import { MedalNavigation } from '../../UniappEntity/uniappHome/Medal/MedalNavigation.entity';
 import { MedalSelect } from '../../UniappEntity/uniappHome/Medal/MedalSelect.entity';
@@ -59,8 +58,6 @@ export class UniAppHomeService {
     private readonly CourseSelectChoicenesRepository: Repository<CourseSelectChoicenes>,
     @InjectRepository(PlanCustom, 'uniapp-home')
     private readonly PlanCustomRepository: Repository<PlanCustom>,
-    @InjectRepository(PlanMember, 'uniapp-home')
-    private readonly PlanMemberRepository: Repository<PlanMember>,
     @InjectRepository(PlanSelect, 'uniapp-home')
     private readonly PlanSelectRepository: Repository<PlanSelect>,
     @InjectRepository(MedalNavigation, 'uniapp-home')
@@ -587,37 +584,14 @@ export class UniAppHomeService {
     };
     return await PlanCustomDataMerge();
   }
-  // 获取会员训练计划数据
-  async getPlanMember() {
-    const PlanMemberData =
-      this.PlanMemberRepository.createQueryBuilder('PlanMember').getMany();
-    // 合并
-    const PlanMemberDataMerge = async () => {
-      const [data, OssImg] = await Promise.all([
-        // 数据
-        PlanMemberData,
-        // 图片
-        (await PlanMemberData).map((item) => {
-          return this.ossService.listImagesInFolder(
-            `uniappimg/Home/Plan/VipPlan/${item.Id}.webp`,
-          );
-        }),
-      ]);
-      const newOssImg = await Promise.all(OssImg).then((res) => res.flat());
-      return data.map((item, index) => ({
-        ...item,
-        Img: newOssImg[index],
-      }));
-    };
-    return await PlanMemberDataMerge();
-  }
 
   // 获取所有训练内容
   async PlanSelect() {
-    const PlanSelectData =
-      await this.PlanSelectRepository.createQueryBuilder(
-        'PlanSelect',
-      ).getMany();
+    const PlanSelectData = await this.PlanSelectRepository.createQueryBuilder(
+      'PlanSelect',
+    )
+      .leftJoinAndSelect('PlanSelect.PlanSelectSign', 'PlanSelectSign')
+      .getMany();
     // 合并
     const PlanSelectMerge = async () => {
       const [data, OssImg] = await Promise.all([
