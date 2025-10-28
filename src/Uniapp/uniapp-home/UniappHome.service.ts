@@ -762,7 +762,7 @@ export class UniAppHomeService {
       // 组合2
       const processedData = await Promise.all(
         data.map(async (item, index) => {
-          const user = UserInfo.find((ite) => ite.id === item.GameId);
+          const user = UserInfo.find((ite) => ite.id === item.UserId);
 
           let userAvatar: string | null = null;
           if (user) {

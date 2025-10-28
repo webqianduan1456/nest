@@ -25,4 +25,6 @@ export class Game {
 
   @Column()
   GameStartTime: Date;
+  @Column()
+  UserId: number;
 }
