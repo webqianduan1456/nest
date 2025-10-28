@@ -9,9 +9,5 @@ export class PlanCustom {
   @Column()
   SmallTitle: string;
   @Column()
-  Title2: string;
-  @Column()
-  SmallTitle2: string;
-  @Column()
   UserId: number;
 }
