@@ -580,10 +580,10 @@ export class UniAppHomeService {
           `uniappimg/Home/Plan/CustomPlan/1.webp`,
         ),
       ]);
-      return data.map((item) => ({
-        ...item,
+      return {
+        data,
         img: OssImg[0],
-      }));
+      };
     };
     return await PlanCustomDataMerge();
   }
