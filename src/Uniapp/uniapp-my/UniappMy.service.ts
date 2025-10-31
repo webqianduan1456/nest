@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OssService } from '../../OSS/oss';
 import { HelpNavigate } from '../../UniappEntity/UniappMy/HelpNavigate.entity';
 import { KeepData } from '../../UniappEntity/UniappMy/KeepData.entity';
-import { UserInfoIcon } from '../../UniappEntity/UniappMy/UserInfoIcon.entity';
 import { Repository } from 'typeorm';
+import { UserGlory } from '../../UniappEntity/UniappMy/UserGlory.entity';
+import { UserInsignificant } from '../../UniappEntity/UniappMy/UserInsignificant.entity';
 
 @Injectable()
 export class UniappMyService {
@@ -15,8 +16,10 @@ export class UniappMyService {
     private readonly HelpNavigateRepository: Repository<HelpNavigate>,
     @InjectRepository(KeepData, 'uniapp-my')
     private readonly KeepDataRepository: Repository<KeepData>,
-    @InjectRepository(UserInfoIcon, 'uniapp-my')
-    private readonly UserInfoIconRepository: Repository<UserInfoIcon>,
+    @InjectRepository(UserInsignificant, 'uniapp-my')
+    private readonly UserInsignificantRepository: Repository<UserInsignificant>,
+    @InjectRepository(UserGlory, 'uniapp-my')
+    private readonly UserGloryRepository: Repository<UserGlory>,
   ) {}
   // 获取我的模块的导航Title
   async HelpNavigate() {
@@ -67,36 +70,74 @@ export class UniappMyService {
     return KeepDataData;
   }
   // 获取我的模块用户曾经的辉煌记录与名称
-  async UserInfoIcon() {
-    // 数据
-    const UserInfoIconData =
-      await this.UserInfoIconRepository.createQueryBuilder(
-        'UserInfoIcon',
-      ).getMany();
+  async UserGlory() {
+    // 战绩
+    const UserGloryData =
+      await this.UserGloryRepository.createQueryBuilder('UserGlory').getMany();
+    // 指定图片名字
+    const UserGloryImgName = ['lightning', 'MyLightning', 'MyMedal'];
     // 合并
-    const UserInfoIconMerge = async () => {
-      const UserInfoIconArray = ['lightning', 'medal', 'icon_pk', 'flag'];
-      const [data, OssImg] = await Promise.all([
-        // 数据
-        UserInfoIconData,
-        // 图片
-        UserInfoIconArray.map((item) => {
-          return this.ossService.listImagesInFolder(
-            `uniappimg/My/UserInfo/${item}.svg`,
-          );
-        }),
-      ]);
-      const newOssImg = await Promise.all(OssImg).then((res) => res.flat());
+    const [UserGloryDatas, UserGloryImg] = await Promise.all([
+      // 数据
+      UserGloryData,
+      // 图片
+      UserGloryImgName.map(async (item) => {
+        return await this.ossService.listImagesInFolder(
+          `uniappimg/CommonImg/${item}.svg`,
+        );
+      }),
+    ]);
 
-      return data.map((item) => ({
-        ...item,
-        lightningIcon: newOssImg[0],
-        trophyIcon: newOssImg[1],
-        pkIcon: newOssImg[2],
-        joinIcon: newOssImg[3],
-      }));
+    // 解析promise
+    const UserGloryNewImg = await Promise.all(UserGloryImg).then((res) =>
+      res.flat(),
+    );
+
+    // 返回最新数据
+    const UserGloryDataMerge = () => {
+      return UserGloryDatas.map((item, index) => {
+        return {
+          ...item,
+          img: UserGloryNewImg[index],
+        };
+      });
     };
 
-    return await UserInfoIconMerge();
+    // 战绩右侧其他
+    const UserInsignificantData =
+      await this.UserInsignificantRepository.createQueryBuilder(
+        'UserInsignificant',
+      ).getMany();
+    // 指定图片名字
+    const UserInsignificantImgName = ['MyIconPk', 'MyIconPk', 'MyFlag'];
+    // 合并
+    const [UserInsignificantDatas, UserInsignificantImg] = await Promise.all([
+      // 数据
+      UserInsignificantData,
+      // 图片
+      UserInsignificantImgName.map((item) => {
+        return this.ossService.listImagesInFolder(
+          `uniappimg/CommonImg/${item}.svg`,
+        );
+      }),
+    ]);
+    // 解析promise
+    const UserInsignificantNewImg = await Promise.all(
+      UserInsignificantImg,
+    ).then((res) => res.flat());
+
+    // 返回最新数据
+    const UserInsignificantDataMerge = () => {
+      return UserInsignificantDatas.map((item, index) => {
+        return {
+          ...item,
+          img: item.id == 2 ? '' : UserInsignificantNewImg[index],
+        };
+      });
+    };
+    return {
+      UserGloryDataMerge: UserGloryDataMerge(),
+      UserInsignificantDataMerge: UserInsignificantDataMerge(),
+    };
   }
 }

@@ -15,8 +15,8 @@ export class UniappMyController {
     return this.UniappMyServices.KeepData();
   }
   // 获取我的模块用户曾经的辉煌记录与名称
-  @Get('getUserInfoIcon')
-  async getUserInfoIcon() {
-    return this.UniappMyServices.UserInfoIcon();
+  @Get('getUserGlory')
+  async UserGlory() {
+    return this.UniappMyServices.UserGlory();
   }
 }

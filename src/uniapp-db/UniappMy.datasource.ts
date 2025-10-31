@@ -1,6 +1,7 @@
+import { UserGlory } from '../UniappEntity/UniappMy/UserGlory.entity';
+import { UserInsignificant } from '../UniappEntity/UniappMy/UserInsignificant.entity';
 import { HelpNavigate } from '../UniappEntity/UniappMy/HelpNavigate.entity';
 import { KeepData } from '../UniappEntity/UniappMy/KeepData.entity';
-import { UserInfoIcon } from '../UniappEntity/UniappMy/UserInfoIcon.entity';
 import { DataSource } from 'typeorm';
 
 export const UniappMy = new DataSource({
@@ -10,5 +11,5 @@ export const UniappMy = new DataSource({
   username: 'root',
   password: '1989315788',
   database: 'UniappMy',
-  entities: [HelpNavigate, KeepData, UserInfoIcon],
+  entities: [HelpNavigate, KeepData, UserInsignificant, UserGlory],
 });

@@ -3,13 +3,14 @@ import { UniappMyController } from './UniappMy.controller';
 import { UniappMyService } from './UniappMy.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HelpNavigate } from '../../UniappEntity/UniappMy/HelpNavigate.entity';
-import { UserInfoIcon } from '../../UniappEntity/UniappMy/UserInfoIcon.entity';
 import { KeepData } from '../../UniappEntity/UniappMy/KeepData.entity';
+import { UserInsignificant } from '../../UniappEntity/UniappMy/UserInsignificant.entity';
+import { UserGlory } from '../../UniappEntity/UniappMy/UserGlory.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature(
-      [HelpNavigate, KeepData, UserInfoIcon],
+      [HelpNavigate, KeepData, UserInsignificant, UserGlory],
       'uniapp-my',
     ),
   ],
