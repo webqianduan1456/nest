@@ -9,6 +9,8 @@ import { InjectQueue } from '@nestjs/bull';
 import { Friend } from '../Entity/User/Friend.entity';
 import { UserChatInfo } from '../Entity/User/UserChatInfo.entity';
 import { Message } from './type';
+import { RoomMessage } from '../Entity/User/RoomMessage.entity';
+import getRoomMark from 'src/hooks/getRoom';
 interface n {
   userid?: number;
   oppositeId?: number;
@@ -27,6 +29,9 @@ export class UserService {
     // 用户聊天信息
     @InjectRepository(UserChatInfo, 'user')
     private readonly UserChatInfoRepository: Repository<UserChatInfo>,
+    // 获取房间信息
+    @InjectRepository(RoomMessage, 'user')
+    private readonly RoomMessageRepository: Repository<RoomMessage>,
 
     // redis缓存
     private readonly redisService: RedisService,
@@ -318,7 +323,7 @@ export class UserService {
     };
   }
   // 获取用户聊天信息
-  async getChatMessage(room: number) {
+  async getChatMessage(room: string) {
     const chat = await this.UserChatInfoRepository.createQueryBuilder('chat')
       .where('chat.room = :room', { room })
       .orderBy('chat.time', 'ASC')
@@ -336,5 +341,9 @@ export class UserService {
     if (Object.keys(infoData).length > 0) {
       await this.UserChatInfoRepository.insert([...infoData]);
     }
+  }
+  // 获取房间号
+  async RoomMessage(userA: number, userB: number) {
+    return await getRoomMark(this.RoomMessageRepository, userA, userB);
   }
 }

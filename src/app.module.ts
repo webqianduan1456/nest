@@ -189,7 +189,6 @@ import { UniappMy } from './uniapp-db/UniappMy.datasource';
       }),
       inject: [ConfigService],
     }),
-    // BUll连接redis
     BullModule.forRoot({
       redis: {
         host: '47.118.17.138',
@@ -197,6 +196,27 @@ import { UniappMy } from './uniapp-db/UniappMy.datasource';
         password: '1989315788',
         maxRetriesPerRequest: 10,
         db: 0,
+      },
+      defaultJobOptions: {
+        removeOnComplete: true, // 任务完成后自动删除
+        removeOnFail: false, // 失败的任务保留
+        attempts: 3, // 重试次数
+        backoff: {
+          type: 'exponential', // 指数退避
+          delay: 1000, // 初始延迟1秒
+        },
+      },
+      settings: {
+        stalledInterval: 60000, // 停滞检测间隔60秒
+        maxStalledCount: 3, // 最大停滞次数
+        guardInterval: 5000, // 守护进程间隔
+        retryProcessDelay: 5000, // 重试延迟
+        drainDelay: 300, // 排空延迟
+      },
+      limiter: {
+        max: 100, // 每秒最多100个任务
+        duration: 1000, // 时间窗口1秒
+        bounceBack: false, // 不反弹
       },
     }),
     HomeModule,

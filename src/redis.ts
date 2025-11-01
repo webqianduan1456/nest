@@ -109,12 +109,32 @@ export class RedisService implements OnModuleDestroy {
 
   // 在列表尾部添加元素
   async rpush(key: string, ...values: any[]) {
-    return await this.client.rpush(
-      key,
-      ...values.map((v) => JSON.stringify(v)),
-    );
-  }
+    const processedValues = values.map((v) => {
+      // 统一处理：所有非基本类型都序列化
+      if (v === null || v === undefined) {
+        return '';
+      }
 
+      // 基本类型直接使用
+      if (
+        typeof v === 'string' ||
+        typeof v === 'number' ||
+        typeof v === 'boolean'
+      ) {
+        return v.toString();
+      }
+
+      // 对象、数组等序列化
+      try {
+        return JSON.stringify(v);
+      } catch (error) {
+        console.error('JSON序列化失败:', error);
+        return String(v); // 兜底方案
+      }
+    });
+
+    return await this.client.rpush(key, ...processedValues);
+  }
   // 获取列表元素
   async lrange<T>(key: string, start: number, stop: number): Promise<T[]> {
     const data = await this.client.lrange(key, start, stop);

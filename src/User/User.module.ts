@@ -8,10 +8,14 @@ import { RedisService } from '../redis';
 import { BullModule } from '@nestjs/bull';
 import { Friend } from '../Entity/User/Friend.entity';
 import { applyProcessor } from '../Bull/user.processor';
+import { RoomMessage } from '../Entity/User/RoomMessage.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserInfo, UserChatInfo, Friend], 'user'),
+    TypeOrmModule.forFeature(
+      [UserInfo, UserChatInfo, Friend, RoomMessage],
+      'user',
+    ),
     BullModule.registerQueue({ name: 'applyFor' }),
   ],
   controllers: [UserController],

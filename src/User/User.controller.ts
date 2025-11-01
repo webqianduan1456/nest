@@ -55,12 +55,21 @@ export class UserController {
   }
   // 获取用户聊天信息
   @Get('getChatMessage')
-  getChatMessage(@Query('room') room: number) {
+  getChatMessage(@Query('room') room: string) {
     return this.UserServices.getChatMessage(room);
   }
   // 添加用户聊天信息
   @Post('createChatMessage')
-  createChatMessage(infoData: Array<Message>) {
+  async createChatMessage(infoData: Array<Message>) {
     return this.UserServices.createChatMessage(infoData);
+  }
+
+  // 获取房间表
+  @Get('getRoomMessage')
+  async getRoomMessage(
+    @Query('userA') userA: number,
+    @Query('userB') userB: number,
+  ) {
+    return this.UserServices.RoomMessage(userA, userB);
   }
 }

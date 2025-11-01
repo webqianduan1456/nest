@@ -3,6 +3,6 @@ export interface Message {
   Message: string;
   time: string | Date;
   active: number;
-  room: number;
+  room: string;
   userid: number;
 }

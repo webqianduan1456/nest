@@ -1,3 +1,4 @@
+import { RoomMessage } from '../Entity/User/RoomMessage.entity';
 import { Friend } from '../Entity/User/Friend.entity';
 import { UserInfo } from '../Entity/User/user.entity';
 import { UserChatInfo } from '../Entity/User/UserChatInfo.entity';
@@ -10,5 +11,5 @@ export const UserMessage = new DataSource({
   username: 'root',
   password: '1989315788',
   database: 'User',
-  entities: [UserInfo, UserChatInfo, Friend],
+  entities: [UserInfo, UserChatInfo, Friend, RoomMessage],
 });

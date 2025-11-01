@@ -22,17 +22,19 @@ export class applyProcessor {
   }
   // 将用户发送的消息保存到数据库
   @Process('message')
-  async handleCancelMessage(job: Job<{ userid: number; oppositeId: number }>) {
-    const { userid, oppositeId } = job.data;
-    const infoData: Array<Message> | null = await this.redisService.get(
-      `Message${userid + oppositeId}`,
+  async handleCancelMessage(job: Job<{ roomId: number }>) {
+    const { roomId } = job.data;
+    const infoData: Array<Message> | null = await this.redisService.lrange(
+      `Message${roomId}`,
+      0,
+      -1,
     );
 
     if (infoData) {
       // 将数据存到数据库
       await this.UserServiceS.createChatMessage(infoData);
-      // 移除队列
-      await this.applyQueue.removeJobs(`Message${userid + oppositeId}`);
+      // 删除redis字段
+      await this.redisService.del(`Message${roomId}`);
     }
   }
 }
